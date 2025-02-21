@@ -1,5 +1,5 @@
-require('./settings');
-const { makeWASocket, downloadContentFromMessage, emitGroupParticipantsUpdate, emitGroupUpdate, generateWAMessageContent, generateWAMessage, makeInMemoryStore, prepareWAMessageMedia, generateWAMessageFromContent, MediaType, areJidsSameUser, WAMessageStatus, downloadAndSaveMediaMessage, AuthenticationState, GroupMetadata, initInMemoryKeyStore, getContentType, MiscMessageGenerationOptions, useSingleFileAuthState, BufferJSON, WAMessageProto, MessageOptions, WAFlag, WANode, WAMetric, ChatModification, MessageTypeProto, WALocationMessage, ReRaol404ectMode, WAContextInfo, proto, WAGroupMetadata, ProxyAgent, waChatKey, MimetypeMap, MediaPathMap, WAContactMessage, WAContactsArrayMessage, WAGroupInviteMessage, WATextMessage, WAMessageContent, WAMessage, BaileysError, WA_MESSAGE_STATUS_TYPE, MediaConnInfo, URL_REGEX, WAUrlInfo, WA_DEFAULT_EPHEMERAL, WAMediaUpload, mentionedJid, processTime, Browser, MessageType, Presence, WA_MESSAGE_STUB_TYPES, Mimetype, relayWAMessage, Browsers, GroupSettingChange, DisRaol404ectReason, WASocket, getStream, WAProto, isBaileys, AnyMessageContent, fetchLatestBaileysVersion, useMultiFileAuthState, templateMessage } = require('@whiskeysockets/baileys');
+require('./settings')
+const { makeWASocket, downloadContentFromMessage, emitGroupParticipantsUpdate, emitGroupUpdate, generateWAMessageContent, generateWAMessage, makeInMemoryStore, prepareWAMessageMedia, generateWAMessageFromContent, MediaType, areJidsSameUser, WAMessageStatus, downloadAndSaveMediaMessage, AuthenticationState, GroupMetadata, initInMemoryKeyStore, getContentType, MiscMessageGenerationOptions, useSingleFileAuthState, BufferJSON, WAMessageProto, MessageOptions, WAFlag, WANode, WAMetric, ChatModification, MessageTypeProto, WALocationMessage, ReRaol404ectMode, WAContextInfo, proto, WAGroupMetadata, ProxyAgent, waChatKey, MimetypeMap, MediaPathMap, WAContactMessage, WAContactsArrayMessage, WAGroupInviteMessage, WATextMessage, WAMessageContent, WAMessage, BaileysError, WA_MESSAGE_STATUS_TYPE, MediaConnInfo, URL_REGEX, WAUrlInfo, WA_DEFAULT_EPHEMERAL, WAMediaUpload, mentionedJid, processTime, Browser, MessageType, Presence, WA_MESSAGE_STUB_TYPES, Mimetype, relayWAMessage, Browsers, GroupSettingChange, DisRaol404ectReason, WASocket, getStream, WAProto, isBaileys, AnyMessageContent, fetchLatestBaileysVersion, useMultiFileAuthState, templateMessage, InteractiveMessage } = require('@whiskeysockets/baileys');
 const { exec } = require('child_process');
 const systeminformation = require('systeminformation');
 const os = require('os');
@@ -18,7 +18,31 @@ const stream = require('stream');
 const quoteApi = require('@neoxr/quote-api')
 const { Sticker } = require('wa-sticker-formatter')
 const { addExif } = require('./App/function/exif')
-const { smsg, formatDate, getTime, getGroupAdmins, formatp, await, sleep, runtime, clockString, msToDate, sort, toNumber, enumGetKey, fetchJson, getBuffer, json, delay, format, logic, generateProfilePicture, parseMention, getRandom, fetchBuffer, buffergif, GIFBufferToVideoBuffer, totalcase } = require('./App/function/myfunc'); 
+const { 
+	smsg, 
+	await, 
+	clockString, 
+	delay, 
+	enumGetKey, 
+	fetchBuffer, 
+	fetchJson, 
+	format, 
+	formatDate, 
+	formatp, 
+	generateProfilePicture, 
+	getBuffer, 
+	getGroupAdmins, 
+	getRandom, 
+	isUrl, 
+	json, 
+	logic, 
+	msToDate, 
+	parseMention, 
+	runtime, 
+	sleep, 
+	sort, 
+	toNumber 
+} = require('./App/function/myfunc'); 
 const { bytesToSize, checkBandwidth, formatSize, jsonformat, nganuin, shorturl, color } = require("./App/function/funcc");
 const { toAudio, toPTT, toVideo, ffmpeg, addExifAvatar } = require('./App/function/converter');
 const { remini } = require('./App/remini');
@@ -92,21 +116,8 @@ async function sendMessageWithMentions(rinn, msg, text, additionalMentions = [])
 
 module.exports.handleIncomingMessage = async (rinn, msg, m) => {
     try {
-const body = (m && m.mtype) ? (
-m.mtype === 'conversation' ? m.message?.conversation :
-m.mtype === 'imageMessage' ? m.message?.imageMessage?.caption :
-m.mtype === 'videoMessage' ? m.message?.videoMessage?.caption :
-m.mtype === 'extendedTextMessage' ? m.message?.extendedTextMessage?.text :
-m.mtype === 'buttonsResponseMessage' ? m.message?.buttonsResponseMessage?.selectedButtonId :
-m.mtype === 'listResponseMessage' ? m.message?.listResponseMessage?.singleSelectReply?.selectedRowId :
-m.mtype === 'templateButtonReplyMessage' ? m.message?.templateButtonReplyMessage?.selectedId :
-m.mtype === 'messageContextInfo' ? (
-m.message?.buttonsResponseMessage?.selectedButtonId || 
-m.message?.listResponseMessage?.singleSelectReply?.selectedRowId || 
-m.text
-) : ''
-) : '';
-const budy = (m && typeof m.text === 'string') ? m.text : '';
+const body = m.body
+const budy = m.text
 const prefix = /^[°zZ#$@*+,.?=:√%!¢£¥€π¤ΠΦ_&><™©®Δ^βα~¦|/\\©^]/.test(body) ? body.match(/^[°zZ#$@*+,.?=:√%¢£¥€π¤ΠΦ_&><!™©®Δ^βα~¦|/\\©^]/gi) : ''
 const isCmd = body.startsWith(prefix)
 const from = m.key.remoteJid
@@ -378,7 +389,7 @@ break;
 case "menu": case "help": {
     try {
         // Send initial reaction
-        const randomemoji = ['🗿', '👾', '🤖', '🎮', '⚡'];
+        const randomemoji = ['🗿', '👾', '🤖', '🎮'];
         await rinn.sendMessage(m.chat, { 
             react: { 
                 text: pickRandom(randomemoji), 
@@ -386,14 +397,14 @@ case "menu": case "help": {
             }
         });
 
-        // Bot Information
+        // Format timestamp and bot info
         const botInfo = {
             status: rinn.public ? "Public Mode" : "Self Mode",
-            version: "3.0.5",
+            version: "1.1.0",
             uptime: runtime(process.uptime())
         };
 
-        // Create menu text
+        // Create header text
         const menuText = `Halo kak *${pushname}*, ini adalah menu bot!\n\n` +
                         `─ Waktu: *${moment().tz('Asia/Jakarta').format('HH:mm')}*\n` +
                         `─ Runtime: *${botInfo.uptime}*\n` +
@@ -401,57 +412,39 @@ case "menu": case "help": {
                         `─ Versi Bot: *${botInfo.version}*\n\n` +
                         `Silahkan pilih menu dibawah ini`;
         let sections = [{
-                title: '<!> Informasi Bot',
-                rows: [{
-                        title: 'Script🗒️',
-                        description: `Menampilkan pesan Script`,
-                        id: `${prefix}sc`
-                    },
-                    {
-                        title: 'tqto👤',
-                        description: `Menampilkan pesan thank you to`,
-                        id: `${prefix}ping`
-                    },
-                    {
-                        title: 'Creator 👑',
-                        description: `Menampilkan pesan thank you to`,
-                        id: `${prefix}owner`
-                    },
-                    {
-                        title: 'AllMenu📘',
-                        description: `Menampilkan pesan allmenu`,
-                        id: `${prefix}allmenu`
-                    },
-                ]
-            },
-            {
-                title: 'Daftar Menu',
-                rows: [{
-                        title: 'Ai Menu',
-                        description: `Inilah masa depan`,
-                        id: `${prefix}aimenu`
-                    },
-                    {
-                        title: 'Download Menu',
-                        description: `Download dari platform lain`,
-                        id: `${prefix}downloadmenu`
-                    },
-                    {
-                        title: 'Ai Deku',
-                        description: `Ai Deku Dari: Anime My Hero Academia`,
-                        id: `${prefix}deku halo`
-                    },
-                    {
-                        title: 'Ai Denki',
-                        description: `Ai Denki Dari: Anime My Hero Academia`,
-                        id: `${prefix}denki halo`
-                    },
-                    {
-                        title: 'Ai Todoroki',
-                        description: `Ai Todoroki Dari: Anime My Hero Academia`,
-                        id: `${prefix}todoroki halo`
-                    },
-                ]
+                title: "Select Menu",
+                                            rows: [
+                                                {
+                                                    title: 'Ai Menu',
+                                                    description: `Ini kecerdasan buatan`,
+                                                    id: `${prefix}aimenu`
+                                                },
+                                                {
+                                                    title: 'Anime Menu',
+                                                    description: `Wibu menu`,
+                                                    id: `${prefix}animemenu`
+                                                },
+                                                {
+                                                    title: 'Download Menu',
+                                                    description: `Menu buat dunlud dunlud`,
+                                                    id: `${prefix}dlmenu`
+                                                },
+                                                {
+                                                    title: 'Search Menu',
+                                                    description: `Buat cari tau apa yang kamu mau tau`,
+                                                    id: `${prefix}searchmenu`
+                                                },
+                                                {
+                                                    title: 'Sticker Menu',
+                                                    description: `Buat generate stiker wangsap`,
+                                                    id: `${prefix}stickermenu`
+                                                },
+                                                {
+                                                    title: 'Tools Menu',
+                                                    description: `Alat alat yang mungkin berguna`,
+                                                    id: `${prefix}tlmenu`
+                                                }
+                                            ]
             },
         ]
 
@@ -459,21 +452,19 @@ case "menu": case "help": {
             title: 'Click Here⎙',
             sections
         };
-
-        // Send menu message with buttons and interactive section
-        await rinn.sendMessage(m.chat, {
-            text: menuText,
-            footer: "© Rinn",
-            buttons: [
-                {
-                    buttonId: `.ping`,
+        rinn.sendMessage(m.chat, {
+            image: { url: "./lib/image/header.jpg" },
+            caption: menuText, 
+            footer: `々 Ini kaki`,
+            buttons: [{
+                    buttonId: `${prefix}ping`,
                     buttonText: {
-                        displayText: '🚀 BOT STATUS'
+                        displayText: 'PING'
                     },
                     type: 1,
                 },
                 {
-                    buttonId: `.neofetch`,
+                    buttonId: `${prefix}neofetch`,
                     buttonText: {
                         displayText: 'Neofetch'
                     },
@@ -489,20 +480,19 @@ case "menu": case "help": {
                         name: 'single_select',
                         paramsJson: JSON.stringify(listMessage),
                     },
-                 },
+                },
             ],
             headerType: 1,
             viewOnce: true
-        }, { quoted: m });
-
+        }, {
+            quoted: msg
+        });
         // Send audio after menu
         await rinn.sendMessage(m.chat, {
             audio: fs.readFileSync("./lib/audio/audio.mp3"),
             mimetype: 'audio/mp4',
             ptt: true
-        }, { 
-            quoted: m 
-        });
+        }, { quoted: m });
 
     } catch (error) {
         console.error('Error in menu command:', error);
@@ -562,7 +552,7 @@ case 'stickermenu': {
     break;
 }
 
-case 'toolsmenu': {
+case 'tlmenu': {
     const toolsMenuText = `*Tools Menu*
 • bratvideo <text> - Create video with text
 • colorize - Colorize B&W images
@@ -850,11 +840,6 @@ case 'play': {
         const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-_]+/;
         let videoInfo;
 
-        // Send initial loading message
-        const loadingMsg = await rinn.sendMessage(sender, { 
-            text: '⌛ Mencari...'
-        }, { quoted: msg });
-
         if (ytRegex.test(searchQuery)) {
             // Direct URL provided
             const videoUrl = searchQuery;
@@ -903,24 +888,29 @@ case 'play': {
             };
         }
 
-        await rinn.sendMessage(msg.key.remoteJid, {
-            text: Buffer.from('*Video Ditemukan!* ✨\n\n╔╾┅━┅━┅━┅━┅━┅━┅━┅⋄\n┇❏ `Judul:` ' + videoInfo.title + '\n┇❏ `Channel:` ' + videoInfo.author + '\n┇❏ `Durasi:` ' + videoInfo.duration + '\n┇❏ `Views:` ' + videoInfo.views + '\n┇❏ `Quality Video: 720p` ' + '\n┇❏ `Quality Audio: 128kbps` ' + '\n╚╾┅━┅━┅━┅━┅━┅━┅━┅⋄\n\nSilahkan ketik:\n*.audio* - untuk download MP3\n*.video* - untuk download MP4').toString(),
+        await rinn.sendMessage(m.chat, {
+            image: {url: videoInfo.thumbnail},
+            caption: Buffer.from('*Pencarian Ditemukan!* ✨\n\n╔╾┅━┅━┅━┅━┅━┅━┅━┅⋄\n┇❏ `Judul:` ' + videoInfo.title + '\n┇❏ `Channel:` ' + videoInfo.author + '\n┇❏ `Durasi:` ' + videoInfo.duration + '\n┇❏ `Views:` ' + videoInfo.views + '\n┇❏ `Quality Video: 720p` ' + '\n┇❏ `Quality Audio: 128kbps` ' + '\n╚╾┅━┅━┅━┅━┅━┅━┅━┅⋄\n').toString(),
             footer: 'rinn✨',
-            ptt: false,
-                    contextInfo: {
-                    externalAdReply: {
-                    showAdAttribution: true,
-                    title: videoInfo.title,
-                    body: videoInfo.author,
-                    thumbnailUrl: videoInfo.thumbnail,
-                    mediaType: 1,
-                    previewType: 1,
-                    renderLargerThumbnail: true,
-                    mediaUrl: videoInfo.url,
-                    sourceUrl: videoInfo.Url
-                    }
-                }
-            }, { quoted: msg });
+            headerType: 6,
+            buttons: [{
+                    buttonId: `.videoplay`,
+                    buttonText: {
+                        displayText: 'Video'
+                    },
+                    type: 1,
+                },
+                {
+                    buttonId: `.audioplay`,
+                    buttonText: {
+                        displayText: 'Audio'
+                    },
+                    type: 1,
+                },
+            ],
+            headerType: 1,
+            viewOnce: true
+        }, { quoted: msg });
 
         // Store video info in state
         setState(sender, 'awaiting_format', {
@@ -946,14 +936,14 @@ case 'play': {
     }
 }
 break;
-case 'audio': case 'video': {
+case 'audioplay': case 'videoplay': {
     const userState = getState(sender);
     if (!userState || userState.state !== 'awaiting_format') {
         return;
     }
 
     const { videoInfo } = userState.data;
-    const isAudio = command === 'audio';
+    const isAudio = command === 'audioplay';
 
     try {
         // Send waiting message
