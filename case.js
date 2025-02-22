@@ -8,12 +8,18 @@ const fs = require('fs');
 const moment = require('moment-timezone');
 const sharp = require('sharp');
 const path = require('path');
+const jimp = require('jimp');
 const yts = require("yt-search");
 const axios = require("axios");
 const ytdl = require('ytdl-core');
+const crypto = require("crypto");
+const FormData = require("form-data");
+const { fromBuffer } = require("file-type");
+const undici = require("undici");
+const { extension } = require("mime-types");
+const { html } = require("js-beautify");
 const { createWriteStream } = require('fs');
 const { promisify, util } = require('util');
-const FormData = require('form-data');
 const stream = require('stream');
 const quoteApi = require('@neoxr/quote-api')
 const { Sticker } = require('wa-sticker-formatter')
@@ -46,7 +52,7 @@ const {
 const { bytesToSize, checkBandwidth, formatSize, jsonformat, nganuin, shorturl, color } = require("./App/function/funcc");
 const { toAudio, toPTT, toVideo, ffmpeg, addExifAvatar } = require('./App/function/converter');
 const { remini } = require('./App/remini');
-const { tmpfiles, Uguu, gofile, catbox, mediaUploader, videy, caliph, doods, picu } = require('./App/uploader');
+const { tmpfiles, Uguu, gofile, catbox, mediaUploader, videy, caliph, doods, picu, btch } = require('./App/uploader');
 const pipeline = promisify(stream.pipeline);
 const aiGroupStatus = new Map();
 const { execSync } = require('child_process');
@@ -57,6 +63,7 @@ const handleAI = require('./handlers/aiClaude');
 const { handleAnilistSearch, handleAnilistDetail, handleAnilistPopular } = require('./handlers/aiAnilist');
 const { handleAppleMusicSearch, handleAppleMusicDownload } = require('./handlers/dlAppleMusic');
 const { handleTtsave } = require('./handlers/dlTtsave');
+const { Remini } = require('./handlers/tlRemini');
 const handlePxpic = require('./handlers/dlPxpic');
 const { handleIgram } = require('./handlers/dlIgram');
 const handlePin = require('./handlers/dlPin');
@@ -221,12 +228,12 @@ case 's': {
                 }
             }
             
-            mediaData = await quoted.download();
+            mediaData = await rinn.downloadAndSaveMediaMessage(quoted);
         } 
 
         else {
             if (msg.message.imageMessage) {
-                media = await downloadMediaMessage(msg, 'buffer', {});
+                media = await rinn.downloadAndSaveMediaMessage(quoted);
             } else if (msg.message.videoMessage) {
                 if (msg.message.videoMessage.seconds > 10) {
                     return rinn.sendMessage(sender, {
@@ -234,7 +241,7 @@ case 's': {
                         quoted: msg
                     });
                 }
-                mediaData = await downloadMediaMessage(msg, 'buffer', {});
+                mediaData = await rinn.downloadAndSaveMediaMessage(quoted);
             }
         }
 
@@ -684,7 +691,7 @@ case 'ytmp3': {
         
         // If not a URL, search for the video first
         if (!args[0].match(/^https?:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+|https?:\/\/youtu\.be\/[\w-]+/)) {
-            const searchResponse = await axios.get(`https://ytcdn.project-rian.my.id/search?q=${encodeURIComponent(args.join(' '))}`);
+            const searchResponse = await axios.get(`https://ytdownloader.nvlgroup.my.id/search?q=${encodeURIComponent(args.join(' '))}`);
             if (!searchResponse.data.videos || searchResponse.data.videos.length === 0) {
                 return reply(rinn, msg, 'No videos found!');
             }
@@ -692,7 +699,7 @@ case 'ytmp3': {
         }
         
         // Get video info
-        const infoResponse = await axios.get(`https://ytcdn.project-rian.my.id/info?url=${encodeURIComponent(url)}`);
+        const infoResponse = await axios.get(`https://ytdownloader.nvlgroup.my.id/info?url=${encodeURIComponent(url)}`);
         const videoInfo = infoResponse.data;
         
         // Format duration
@@ -749,7 +756,7 @@ case 'ytmp3': {
             await rinn.sendMessage(sender, messageOptions, { quoted: msg });
             
             // Download video
-            const videoUrl = `https://ytcdn.project-rian.my.id/download?url=${encodeURIComponent(url)}&resolution=${selectedQuality.height}`;
+            const videoUrl = `https://ytdownloader.nvlgroup.my.id/download?url=${encodeURIComponent(url)}&resolution=${selectedQuality.height}`;
             const videoResponse = await axios.get(videoUrl, { responseType: 'arraybuffer' });
             
             // Send video with thumbnail
@@ -798,7 +805,7 @@ case 'ytmp3': {
             await rinn.sendMessage(sender, messageOptions, { quoted: msg });
             
             // Download audio
-            const audioUrl = `https://ytcdn.project-rian.my.id/audio?url=${encodeURIComponent(url)}&bitrate=${selectedBitrate.bitrate}`;
+            const audioUrl = `https://ytdownloader.nvlgroup.my.id/audio?url=${encodeURIComponent(url)}&bitrate=${selectedBitrate.bitrate}`;
             const audioResponse = await axios.get(audioUrl, { responseType: 'arraybuffer' });
             
             // Send audio with thumbnail
@@ -853,9 +860,9 @@ case 'play': {
             videoInfo = {
                 title: mp4Response.data.title,
                 thumbnail: mp4Response.data.thumbnail,
-                duration: mp4Response.data.duration,
-                views: mp4Response.data.lengthSeconds,
-                author: mp4Response.data.author,                                          url: mp4Response.data.result.videoUrl,
+                duration: mp4Response.data.lengthSeconds,
+                views: mp4Response.data.views,
+                author: mp4Response.data.author,
                 mp4: mp4Response.data.url,
                 mp3: mp3Response.data.url
             };
@@ -879,10 +886,9 @@ case 'play': {
             videoInfo = {
                 title: mp4Response.data.title,
                 thumbnail: mp4Response.data.thumbnail,
-                duration: mp4Response.data.duration,
-                views: mp4Response.data.lengthSeconds,
+                duration: mp4Response.data.lengthSeconds,
+                views: mp4Response.data.views,
                 author: mp4Response.data.author,
-                url: mp4Response.data.videoUrl,
                 mp4: mp4Response.data.url,
                 mp3: mp3Response.data.url
             };
@@ -1654,307 +1660,87 @@ case 'gitpush': {
     }
 }
 break;
-case 'getdata': {
-  const axioss = require('axios');
-  const cloudscraperr = require('cloudscraper');
-  const fetchh = require('node-fetch');
-  const { fetch: undiciFetch } = require('undici');
-    let gtd = `
-Usage: ${prefix}getdata [options]
-`+ readmore + `
-Options:
-  --url <url>             Specify the URL to fetch.
-  --axios                 Use axios for the HTTP request.
-  --fetch                 Use fetch for the HTTP request.
-  --cloudscraper         Use cloudscraper for the HTTP request.
-  --undici               Use undici for the HTTP request.
-  --headers <json>        Set custom headers as a JSON object.
-  --timeout <milliseconds> Set a timeout for the request (default: 0).
-  --cookie <cookie>       Set the Cookie header.
-  --only-headers         Only return the headers of the response.
-  --get-buffer           Only return the response body as a buffer.
-
-Example:
-  ${prefix}getdata https://example.com --fetch
-  ${prefix}getdata --url https://example.com --headers '{"User-Agent": "MyApp"}' --timeout 5000 --cookie "sessionid=abc123"
-        `
-    if (!args.length) {
-        await rinn.sendMessage(sender, { text: gtd}, { quoted: msg });
-        return;
-    }
-
+case 'hd':
+case 'hdr':
+case 'remini': {
+async function Upscale(imageBuffer) {
     try {
-        function parseArgs(args) {
-            const options = {
-                axios: false,
-                fetch: false,
-                cloudscraper: false,
-                undici: false,
-                headers: null,
-                timeout: 0,
-                cookie: '',
-                onlyHeaders: false,
-                getBufferOnly: false,
-                authorization: null,
-                url: null,
-            };
-
-            // Jika argumen pertama bukan flag, anggap sebagai URL
-            if (args[0] && !args[0].startsWith('--')) {
-                options.url = args[0];
-                args = args.slice(1); // Hapus URL dari array args
-            }
-
-            for (let i = 0; i < args.length; i++) {
-                switch (args[i]) {
-                    case '--headers':
-                        if (i + 1 < args.length) {
-                            options.headers = JSON.parse(args[i + 1]);
-                            i++;
-                        }
-                        break;
-                    case '--axios':
-                        options.axios = true;
-                        break;
-                    case '--fetch':
-                        options.fetch = true;
-                        break;
-                    case '--cloudscraper':
-                        options.cloudscraper = true;
-                        break;
-                    case '--undici':
-                        options.undici = true;
-                        break;
-                    case '--authorization':
-                        if (i + 1 < args.length) {
-                            options.authorization = args[i + 1];
-                            i++;
-                        }
-                        break;
-                    case '--timeout':
-                        if (i + 1 < args.length) {
-                            options.timeout = parseInt(args[i + 1]);
-                            i++;
-                        }
-                        break;
-                    case '--cookie':
-                        if (i + 1 < args.length) {
-                            options.cookie = args[i + 1];
-                            i++;
-                        }
-                        break;
-                    case '--only-headers':
-                        options.onlyHeaders = true;
-                        break;
-                    case '--get-buffer':
-                        options.getBufferOnly = true;
-                        break;
-                    case '--url':
-                        if (i + 1 < args.length) {
-                            options.url = args[i + 1];
-                            i++;
-                        }
-                        break;
-                }
-            }
-
-            if (!options.url) {
-                reply(rinn, msg, 'URL tidak diisi.');
-                return null;
-            }
-
-            // Jika tidak ada method yang dipilih, gunakan fetch sebagai default
-            if (!options.axios && !options.fetch && !options.cloudscraper && !options.undici) {
-                options.fetch = true;
-            }
-
-            return options;
-        }
-
-        async function Fetcher(url, options = {}) {
-            const {
-                axios,
-                fetch,
-                cloudscraper,
-                undici,
-                headers = {},
-                timeout = 0,
-                cookie = '',
-                onlyHeaders = false,
-                getBufferOnly = false,
-            } = options;
-
-            if (timeout < 0) {
-                return reply(rinn, msg, 'Timeout tidak boleh negatif.');
-            }
-
-            if (getBufferOnly && onlyHeaders) {
-                return reply(rinn, msg, 'Hanya satu dari --get-buffer dan --only-headers yang bisa digunakan.');
-            }
-
-            const finalHeaders = { ...headers };
-
-            if (cookie) {
-                finalHeaders['Cookie'] = cookie;
-            }
-
-            if (options.authorization) {
-                finalHeaders['Authorization'] = options.authorization;
-            }
-
-            let response;
-
-            try {
-                if (axios) {
-                    response = await axioss.get(url, { headers: finalHeaders, timeout });
-                    return onlyHeaders ? response.headers : response.data;
-                } else if (fetch) {
-                    response = await fetchh(url, { 
-                        headers: finalHeaders,
-                        timeout: timeout || undefined
-                    });
-                    
-                    if (onlyHeaders) {
-                        const headers = {};
-                        for (const [key, value] of response.headers.entries()) {
-                            headers[key] = value;
-                        }
-                        return headers;
-                    }
-                    
-                    if (getBufferOnly) {
-                        return await response.buffer();
-                    }
-                    
-                    const text = await response.text();
-                    try {
-                        return JSON.parse(text);
-                    } catch {
-                        return text;
-                    }
-                } else if (cloudscraper) {
-                    response = await cloudscraperr.get(url, { 
-                        headers: finalHeaders,
-                        timeout
-                    });
-                    return response;
-                } else if (undici) {
-                    response = await undiciFetch(url, { 
-                        headers: finalHeaders,
-                        timeout: timeout || undefined
-                    });
-                    
-                    if (onlyHeaders) {
-                        return response.headers;
-                    }
-                    
-                    return await response.text();
-                }
-            } catch (error) {
-                throw new Error(`Fetch error: ${error.message}`);
-            }
-        }
-
-        const options = parseArgs(args);
-        if (!options) return;
-
-        // Log untuk debugging
-        console.log('Parsed options:', options);
-
-        const result = await Fetcher(options.url, options);
-        
-        // Handle berbagai tipe response
-        let responseText;
-        if (Buffer.isBuffer(result)) {
-            responseText = result.toString('utf-8');
-        } else if (typeof result === 'object') {
-            responseText = JSON.stringify(result, null, 2);
-        } else {
-            responseText = result;
-        }
-
-        await reply(rinn, msg, responseText);
-
-        // Save and send the file
-        await fs.writeFileSync("./tes.html", responseText);
-
-        await rinn.sendMessage(
-            sender,
-            {
-                document: fs.readFileSync("./tes.html"),
-                fileName: "tes.html",
-                mimetype: "text/html",
-            },
-            { quoted: msg }
-        );
-
-    } catch (error) {
-        await reply(rinn, msg, `Error: ${error.message}`);
-    }
-}
-break;
-case 'remini': case 'hd': {
-    if (!quoted || !quoted.msg) {
-        await reply(rinn, msg, `Reply/Kirim photo yang mau di jernihkan`);
-        return;
-    }
-
-    if (!/image/.test(mime)) {
-        await reply(rinn, msg, `Reply/Kirim photo yang mau di jernihkan`);
-        return;
-    }
-
-    try {
-        // Send loading message
-        const loadingMsg = await rinn.sendMessage(sender, { 
-            text: '⏳ Sedang memproses gambar...'
-        }, { quoted: msg });
-
-        // Download the image
-        let imageBuffer;
-        if (quoted.msg) {
-            imageBuffer = await downloadMediaMessage(quoted, 'buffer', {});
-        }
-
-        // Convert buffer to base64
-        const base64Image = imageBuffer.toString('base64');
-
-        // Send to remini API
-        const response = await fetch("https://lexica.qewertyy.dev/upscale", {
-            method: "POST",
+        const response = await axios.post("https://lexica.qewertyy.dev/upscale", {
+            image_data: Buffer.from(imageBuffer, "base64"),
+            format: "binary"
+        }, {
             headers: {
                 "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                image_data: base64Image,
-                format: "binary"
-            })
+            }
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to process image');
-        }
-
-        const resultBuffer = Buffer.from(await response.arrayBuffer());
-        const fileSize = formatp(resultBuffer.length);
-
-        // Send the processed image
-        await rinn.sendMessage(sender, {
-            image: resultBuffer,
-            caption: `*– 乂 Remini - Image*\n> *- Ukuran photo :* ${fileSize}`,
-        }, { quoted: msg });
-
-        // Delete loading message
-        await rinn.sendMessage(sender, { 
-            delete: loadingMsg.key 
-        });
-
+        return Buffer.from(await response.data);
     } catch (error) {
-        console.error('Error in remini processing:', error);
-        await reply(rinn, msg, 'Maaf, terjadi kesalahan saat memproses gambar. Silakan coba lagi.');
+        console.error('Upscale error:', error);
+        return null;
+    }
+}
+    if (!isImage && !quoted) return reply(rinn, msg, 'Reply atau kirim gambar dengan caption !hd');
+    
+    try {
+        await reply(rinn, msg, 'Sedang memproses gambar...');
+        
+        const mediaData = isImage ? await rinn.downloadAndSaveMediaMessage(msg) 
+                                : await rinn.downloadAndSaveMediaMessage(quoted);
+        
+        const enhanced = await Upscale(mediaData);
+        if (!enhanced) throw new Error('Gagal meningkatkan kualitas gambar');
+
+        await rinn.sendMessage(sender, { 
+            image: enhanced,
+            caption: 'Hasil peningkatan kualitas gambar ✅',
+            contextInfo: {
+                externalAdReply: {
+                }
+            }
+        }, { quoted: msg });
+    } catch (error) {
+        console.error('HD processing error:', error);
+        await reply(rinn, msg, `Gagal memproses gambar: ${error.message}`);
     }
 }
 break;
+
+case 'terabox': {
+    function extractTeraboxId(url) {
+    const match = url.match(/(?:\/s\/|surl=)([\w-]+)/);
+    return match ? match[1] : null;
+}
+    if (!args[0]) return reply(rinn, msg, 'Masukkan link Terabox!');
+    
+    try {
+        const url = args[0];
+        const id = extractTeraboxId(url);
+        if (!id) throw new Error('ID Terabox tidak valid');
+
+        const response = await axios.get(`https://api.sylica.eu.org/terabox/?id=${id}`, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Android 10; Mobile; rv:131.0) Gecko/131.0 Firefox/131.0',
+                'accept-language': 'id-ID',
+                'referer': 'https://www.kauruka.com/'
+            }
+        });
+
+        const downloadUrl = `https://api.sylica.eu.org/terabox/v2/?s=${id}`;
+        
+        await rinn.sendMessage(sender, {
+            text: `*Terabox Downloader*\n\n*File Info:*\n${JSON.stringify(response.data.data, null, 2)}\n\n*Download Link:*\n${downloadUrl}`,
+            contextInfo: {
+                externalAdReply: {
+                }
+            }
+        }, { quoted: msg });
+    } catch (error) {
+        console.error('Terabox error:', error);
+        await reply(rinn, msg, `Gagal mengunduh: ${error.message}`);
+    }
+}
+break;
+
 case 'hdvid':
 case 'reminivid': {
     if (!quoted) return rinn.sendMessage(sender, { text: `Balas Video Dengan Caption ${prefix}hdvid fps` }, { quoted: msg });
@@ -2215,6 +2001,133 @@ case 'amdl': {
     await handleAppleMusicDownload(rinn, msg, url);
 }
 break;
+case 'tourl': case 'touploader': {
+        try {
+            let target = quoted ? quoted : m;
+            if (!target.msg?.mimetype) {
+                return reply(rinn, msg, "⚠️ *Oops!* Bukan Media Gambar Foto/Video");
+            }
+
+            let buffer = await target.download();
+            let caturl = await catbox(buffer);
+            let btchurl = await btch(buffer);
+
+            let caption = `✨ *Media to URL Uploader* ✨\n\n`
+            caption += `> 📂 *Ukuran media:* ${formatSize(buffer.length)}\n`;
+            caption += `> 🔗 *Tautan hasil*\n`;
+            caption += `> 🔗 *Tautan 1:* ${caturl}\n`;
+            caption += `> 🔗 *Tautan 2:* ${btchurl}\n\n`
+            caption += `💡 *Tips:* Gunakan fitur ini untuk berbagi media dengan lebih mudah tanpa perlu mengunggah ulang.`;
+
+            reply(rinn, msg, caption);
+        } catch (e) {
+            console.error(e);
+            reply(rinn, msg, "⚠️ Terjadi kesalahan saat mengupload media");
+        }
+    }
+    break;
+
+    case 'get': case 'fetch': {
+        if (!text) return reply(rinn, msg, `> Masukan atau reply url yang ingin kamu ambil data nya`);
+        
+        try {
+            const urls = text.match(/(https?:\/\/[^\s]+)/g);
+            if (!urls) return reply(rinn, msg, "⚠️ URL tidak valid");
+
+            for (let url of urls) {
+                let data = await undici.fetch(url);
+                let mime = data.headers.get("content-type").split(";")[0];
+                let cap = `*– 乂 Fetch - Url*\n> *- Request :* ${url}`;
+                
+                let body;
+                if (/\html/gi.test(mime)) {
+                    body = await data.text();
+                    await rinn.sendMessage(m.chat, {
+                        document: Buffer.from(html(body)),
+                        caption: cap,
+                        fileName: "result.html",
+                        mimetype: mime,
+                    }, { quoted: m });
+                } else if (/\json/gi.test(mime)) {
+                    body = await data.json();
+                    reply(rinn, msg, JSON.stringify(body, null, 2));
+                } else if (/image|video|audio/gi.test(mime)) {
+                    body = await data.arrayBuffer();
+                    await rinn.sendMessage(m.chat, {
+                        [mime.split('/')[0]]: Buffer.from(body),
+                        caption: cap,
+                        fileName: `result.${extension(mime)}`,
+                        mimetype: mime
+                    }, { quoted: m });
+                } else {
+                    try {
+                        body = await data.buffer();
+                    } catch (e) {
+                        body = await data.text();
+                    }
+                    reply(rinn, msg, jsonformat(body));
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            reply(rinn, msg, "⚠️ Terjadi kesalahan saat mengambil data");
+        }
+    }
+    break;
+case 'getpp': case 'getppwa': {
+        if (!quoted) return reply(rinn, msg, 'reply pesan kalau mau getpp');
+        try {
+            const getpp = await rinn.profilePictureUrl(quoted.sender, 'image');
+            await rinn.sendMessage(m.chat, {
+                image: { url: getpp },
+                caption: 'nih kak'
+            }, { quoted: m });
+        } catch (e) {
+            reply(rinn, msg, 'Terjadi kesalahan saat mengambil foto profil');
+        }
+    }
+    break;
+    case 'setppbot': case 'setpp': {
+        if (!isCreator) return reply(rinn, msg, 'Fitur khusus owner!');
+        
+        let q = quoted;
+        let mime = (q.msg || q).mimetype || q.mediaType || '';
+        
+        if (/image/g.test(mime) && !/webp/g.test(mime)) {
+            try {
+                let media = await quoted.download();
+                const jimp_1 = await jimp.read(media);
+                const min = jimp_1.getWidth();
+                const max = jimp_1.getHeight();
+                const cropped = jimp_1.crop(0, 0, min, max);
+                const img = await cropped.scaleToFit(720, 720).getBufferAsync(jimp.MIME_JPEG);
+                
+                await rinn.updateProfilePicture(botNumber, img);
+                reply(rinn, msg, 'Sukses mengganti PP Bot');
+            } catch (e) {
+                console.error(e);
+                reply(rinn, msg, 'Terjadi kesalahan, coba lagi nanti.');
+            }
+        } else if (args[0] && isUrl(args[0])) {
+            try {
+                let media = await getBuffer(args[0]);
+                const jimp_1 = await jimp.read(media);
+                const min = jimp_1.getWidth();
+                const max = jimp_1.getHeight();
+                const cropped = jimp_1.crop(0, 0, min, max);
+                const img = await cropped.scaleToFit(720, 720).getBufferAsync(jimp.MIME_JPEG);
+                
+                await rinn.updateProfilePicture(botNumber, img);
+                reply(rinn, msg, 'Sukses mengganti PP Bot');
+            } catch (e) {
+                console.error(e);
+                reply(rinn, msg, 'Terjadi kesalahan, coba lagi nanti.');
+            }
+        } else {
+            reply(rinn, msg, `Kirim gambar dengan caption *${prefix + command}* atau tag gambar yang sudah dikirim`);
+        }
+    }
+    break;
 default:
                 if (budy.startsWith('=>')) {
                     if (!isCreator) return;

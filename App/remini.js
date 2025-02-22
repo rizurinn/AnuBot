@@ -48,5 +48,4 @@ async function remini(kyoko, tysa) {
     });
   });
 }
-
 module.exports.remini = remini;

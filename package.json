@@ -37,6 +37,7 @@
     "groq-sdk": "^0.7.0",
     "human-readable": "^0.2.1",
     "jimp": "^0.16.1",
+    "js-beautify": "^1.15.3",
     "jsdom": "^25.0.0",
     "libphonenumber-js": "^1.11.12",
     "lodash": "^4.17.21",

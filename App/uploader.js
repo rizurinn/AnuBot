@@ -201,4 +201,20 @@ module.exports = {
       throw new Error(String(error));
     }
   },
+  btch: async (content) => {
+    try {
+        let { ext } = await fromBuffer(buffer);
+        let bodyForm = new FormData();
+        bodyForm.append("file", buffer, "file." + ext);
+        let res = await fetch("https://file.btch.rf.gd/api/upload.php", {
+            method: "post",
+            body: bodyForm,
+        });
+        let data = await res.json();
+        return data.result ? data.result.url : '';
+    } catch (e) {
+        console.error(e);
+        return '';
+   }
+},
 };

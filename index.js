@@ -66,7 +66,7 @@ if (global.db) setInterval(async () => {
   }, 30 * 1000)
 
 function createTmpFolder() {
-    const folderName = './storage/tmp'; // Nama folder yang akan dibuat
+    const folderName = 'tmp'; // Nama folder yang akan dibuat
     const folderPath = path.join(__dirname, folderName); // Path folder
 
 
@@ -311,7 +311,7 @@ rinn.getFile = async (PATH, returnAsFilename) => {
     };
 
     if (data && returnAsFilename && !filename) {
-        filename = path.join(__dirname, './storage/tmp/' + new Date * 1 + '.' + type.ext);
+        filename = path.join(__dirname, 'tmp' + new Date * 1 + '.' + type.ext);
         await fs.promises.writeFile(filename, data);
     }
 
