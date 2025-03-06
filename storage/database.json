@@ -1,10 +1,84 @@
 {
   "users": {},
-  "chats": {},
+  "chats": {
+    "6283865622763-1599366904@g.us": {
+      "badword": false
+    },
+    "6281391620354@s.whatsapp.net": {
+      "badword": false
+    },
+    "120363041703189743@g.us": {
+      "badword": false
+    },
+    "6283874475989@s.whatsapp.net": {
+      "badword": false
+    },
+    "6282325705644@s.whatsapp.net": {
+      "badword": false
+    },
+    "6289692637800@s.whatsapp.net": {
+      "badword": false
+    },
+    "6289528688090@s.whatsapp.net": {
+      "badword": false
+    },
+    "120363406246737165@g.us": {
+      "badword": false
+    },
+    "120363388538427874@g.us": {
+      "badword": false
+    },
+    "120363407386982014@g.us": {
+      "badword": false
+    },
+    "6283834312169@s.whatsapp.net": {
+      "badword": false
+    },
+    "6288228768785@s.whatsapp.net": {
+      "badword": false
+    },
+    "120363224601904268@g.us": {
+      "badword": false
+    },
+    "120363153540687395@g.us": {
+      "badword": false
+    },
+    "6287726985759@s.whatsapp.net": {
+      "badword": false
+    },
+    "120363409645463439@g.us": {
+      "badword": false
+    },
+    "120363390812384836@g.us": {
+      "badword": false
+    },
+    "120363200336026221@g.us": {
+      "badword": false
+    },
+    "120363410273746262@newsletter": {
+      "badword": false
+    }
+  },
   "database": {},
   "groups": {},
   "game": {},
-  "settings": {},
+  "settings": {
+    "6287726985759@s.whatsapp.net": {
+      "autobio": true,
+      "autoread": true,
+      "autorecordtype": false,
+      "autorecord": false,
+      "autotype": true,
+      "online": false
+    },
+    "6288228768785@s.whatsapp.net": {
+      "autobio": false,
+      "autoread": true,
+      "autorecordtype": false,
+      "autorecord": false,
+      "autotype": false
+    }
+  },
   "others": {},
   "sticker": {}
 }

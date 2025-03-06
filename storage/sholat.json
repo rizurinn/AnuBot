@@ -1,0 +1,12 @@
+{
+  "6283865622763-1599366904@g.us": {
+    "jadwalSholat": {
+      "lokasi": "KOTA SURAKARTA",
+      "cityId": "1434",
+      "aktif": true
+    },
+    "jadwalPuasa": {
+      "aktif": true
+    }
+  }
+}

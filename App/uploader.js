@@ -201,7 +201,7 @@ module.exports = {
       throw new Error(String(error));
     }
   },
-  btch: async (content) => {
+  btch: async (buffer) => {
     try {
         let { ext } = await fromBuffer(buffer);
         let bodyForm = new FormData();
