@@ -1,3 +1,5 @@
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+
 require('./settings')
 const {
     default: makeWASocket,
@@ -10,6 +12,7 @@ const {
     jidDecode,
     proto,
     delay,
+    Browsers,
     prepareWAMessageMedia,
     generateWAMessageFromContent,
     generateForwardMessageContent,
@@ -18,188 +21,210 @@ const {
     fetchLatestWaWebVersion
 } = require("@whiskeysockets/baileys");
 const fs = require("fs");
+const { readdirSync, statSync, unlinkSync, existsSync, mkdirSync } = require("fs");
+const { join } = require("path");
 const pino = require("pino");
-const axios = require('axios')
 const path = require('path')
 const NodeCache = require("node-cache");
 const msgRetryCounterCache = new NodeCache();
-const fetch = require("node-fetch")
 const FileType = require('file-type')
 const _ = require('lodash')
 const chalk = require('chalk')
-const os = require('os');
-const lolcatjs = require('lolcatjs')
-const moment = require('moment-timezone')
-const now = moment().tz('Asia/Jakarta')
-const wita = now.clone().tz("Asia/Jakarta").locale("id").format("HH:mm:ss z")
-const {
-    Boom
-} = require("@hapi/boom");
 const PhoneNumber = require("awesome-phonenumber");
 const readline = require("readline");
+
 const {
     formatSize,
     runtime,
     sleep,
-    serialize,
-    smsg,
     color,
     getBuffer
-} = require("./App/function/myfunc")
+} = require("./App/function/funcc")
 const {
+    toAudio,
+    toPTT,
+    toVideo,
     imageToWebp,
     videoToWebp,
     writeExifImg,
     writeExifVid
 } = require('./App/function/exif')
-const {
-    toAudio,
-    toPTT,
-    toVideo
-} = require('./App/function/converter')
-const store = makeInMemoryStore({
-    logger: pino().child({
-        level: "silent",
-        stream: "store"
-    })
-});
-const { initSholat } = require('./lib/handlers/sholat.js')
+const { MessagesUpsert, GroupUpdate, GroupParticipantsUpdate, Solving } = require('./App/function/message');
+const { initSholat } = require('./lib/handlers/sholat')
 
-const low = require('./App/lowdb');
-const yargs = require('yargs/yargs');
-const {
-    Low,
-    JSONFile
-} = low;
-const opts = yargs(process.argv.slice(2)).exitProcess(false).parse();
-const dbPath = './storage/database.json';
+const DataBase = require('./App/function/database');
+const database = new DataBase(global.tempatDB);
 
-let db = new JSONFile(dbPath);
+(async () => {
+	const loadData = await database.read()
+	if (loadData && Object.keys(loadData).length === 0) {
+		global.db = {
+			set: {},
+			users: {},
+			game: {},
+			groups: {},
+			database: {},
+			...(loadData || {}),
+		}
+		await database.write(global.db)
+	} else {
+		global.db = loadData
+	}
+	
+	setInterval(async () => {
+		if (global.db) await database.write(global.db)
+	}, 30000)
+})();
 
-global.db = new Low(db);
-global.DATABASE = global.db;
+const groupCache = new NodeCache({stdTTL: 5 * 60, useClones: false})
 
-global.loadDatabase = async function loadDatabase() {
-    if (global.db.READ) return new Promise((resolve) => setInterval(function() {
-        (!global.db.READ ? (clearInterval(this), resolve(global.db.data == null ? global.loadDatabase() : global.db.data)) : null)
-    }, 1 * 1000));
-    if (global.db.data !== null) return;
+function clearSessions(folder = './storage/session') {
+	let filename = []
+	readdirSync(folder).forEach(file => filename.push(join(folder, file)))
+	return filename.map(file => {
+		let stats = statSync(file)
+		if (stats.isFile() &&
+			(Date.now() - stats.mtimeMs >= 1000 * 60 * 120) &&
+			!file.includes('creds.json')) {
+			console.log('Deleted old session:', file)
+			return unlinkSync(file)
+		}
+		return false
+	})
+}
 
-    global.db.READ = true;
-    await global.db.read();
-    global.db.READ = false;
+async function connectionUpdate(update) {
+	const {
+		receivedPendingNotifications,
+		connection,
+		lastDisconnect,
+		isOnline,
+		isNewLogin
+	} = update
 
-    global.db.data = {
-        users: {},
-        chats: {},
-        database: {},
-        groups: {},
-        game: {},
-        settings: {},
-        others: {},
-        sticker: {},
-        ...(global.db.data || {})
-    };
+	if (isNewLogin) {
+		conn.isInit = true
+		console.log(chalk.green('Login Baru Terdeteksi'))
+	}
 
-    global.db.chain = _.chain(global.db.data);
-};
+	switch (connection) {
+		case 'connecting':
+			console.log(chalk.redBright('Mengaktifkan Bot, Mohon tunggu sebentar...'))
+			break
+		case 'open':
+			console.log(chalk.green('Berhasil Tersambung'))
+			break
+		case 'close':
+			console.log(chalk.red('⏱️ Koneksi Terputus'))
 
-global.loadDatabase();
+			if (lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
+				console.log(chalk.yellow('Mencoba menghubungkan kembali...'))
+				await global.reloadHandler(true)
+			} else {
+				console.log(chalk.red('Koneksi gagal - Logged Out'))
+			}
+			break
+	}
 
-process.on('uncaughtException', console.error);
+	if (isOnline === true) console.log(chalk.green('Status Aktif'))
+	if (isOnline === false) console.log(chalk.red('Status Mati'))
 
-if (global.db) setInterval(async () => {
-    if (global.db.data) await global.db.write()
-}, 30 * 1000)
+	if (receivedPendingNotifications) {
+		console.log(chalk.yellow('Menunggu Pesan Baru'))
+	}
+
+	global.timestamp.connect = new Date
+
+	if (global.db.data == null) await global.loadDatabase()
+}
+
+async function initConnection() {
+	if (!existsSync(global.authFile)) {
+		mkdirSync(global.authFile, {
+			recursive: true
+		})
+	}
+
+	try {
+		await conn.connect()
+	} catch (error) {
+		console.error('Kesalahan saat koneksi:', error)
+		setTimeout(initConnection, 5000)
+	}
+}
 
 function createTmpFolder() {
-    const folderName = "tmp"; // Nama folder yang akan dibuat
-    const folderPath = path.join(__dirname, folderName); // Path folder
-
-
+    const folderName = "tmp";
+    const folderPath = path.join(__dirname, folderName);
+    
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+        console.log(`Folder '${folderName}' berhasil dibuat di ${folderPath}`);
+    }
 }
 
 createTmpFolder();
 
-const usePairingCode = true
+let usePairingCode = false;
+const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) });
+
 const question = (text) => {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  return new Promise((resolve) => {
+    rl.question(text, (answer) => {
+      rl.close();
+      resolve(answer);
     });
-    return new Promise((resolve) => {
-        rl.question(text, resolve)
-    })
+  });
 };
 
-async function rinnStarted() {
-    const readline = require("readline");
-    const question = (text) => {
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
-        return new Promise((resolve) => {
-            rl.question(text, resolve)
-        })
-    };
+async function pilihMetodeKoneksi() {
+  const sessionExists = fs.existsSync('./storage/session/creds.json');
+  if (sessionExists) return;
 
+  console.clear();
+  console.log(chalk.blueBright('╭────────────────────────────────────────────╮'));
+  console.log(chalk.blueBright('│ ') + chalk.whiteBright.bold('  Pilih Metode Koneksi WhatsApp') + '           ' + chalk.blueBright('│'));
+  console.log(chalk.blueBright('╰────────────────────────────────────────────╯'));
+  console.log(chalk.green('\n1.') + ' Pairing Code');
+  console.log(chalk.green('2.') + ' QR Code\n');
 
+  const jawaban = await question('Pilih nomor (1/2): ');
+  if (jawaban.trim() === '1') {
+    usePairingCode = true;
+  } else if (jawaban.trim() === '2') {
+    usePairingCode = false;
+  } else {
+    console.log(chalk.red('Pilihan tidak valid, default ke QR Code.'));
+    usePairingCode = false;
+  }
+}
 
-    const {
-        version,
-        isLatest
-    } = await fetchLatestBaileysVersion();
-    const resolveMsgBuffer = new NodeCache();
-    const {
-        state,
-        saveCreds
-    } = await useMultiFileAuthState("storage/session");
-    const rinn = makeWASocket({
-        printQRInTerminal: !usePairingCode,
-        syncFullHistory: true,
-        markOnlineOnConnect: true,
-        connectTimeoutMs: 60000,
-        defaultQueryTimeoutMs: 0,
-        keepAliveIntervalMs: 10000,
-        generateHighQualityLinkPreview: true,
-        patchMessageBeforeSending: (message) => {
-            const requiresPatch = !!(
-                message.buttonsMessage ||
-                message.templateMessage ||
-                message.listMessage
-            );
-            if (requiresPatch) {
-                message = {
-                    viewOnceMessage: {
-                        message: {
-                            messageContextInfo: {
-                                deviceListMetadataVersion: 2,
-                                deviceListMetadata: {},
-                            },
-                            ...message,
-                        },
-                    },
-                };
-            }
-
-            return message;
-        },
-        version: (await (await fetch('https://raw.githubusercontent.com/WhiskeySockets/Baileys/master/src/Defaults/baileys-version.json')).json()).version,
-        browser: ["Ubuntu", "Chrome", "20.0.04"],
-        logger: pino({
-            level: 'fatal'
-        }),
-        auth: {
-            creds: state.creds,
-            keys: makeCacheableSignalKeyStore(state.keys, pino().child({
-                level: 'silent',
-                stream: 'store'
-            })),
-        }
-    });
-    if (usePairingCode && !rinn.authState.creds.registered) {
-        lolcatjs.fromString(`⣿⣿⣷⡁⢆⠈⠕⢕⢂⢕⢂⢕⢂⢔⢂⢕⢄⠂⣂⠂⠆⢂⢕⢂⢕⢂⢕⢂⢕⢂
+async function connectToWhatsApp() {
+  const { state, saveCreds } = await useMultiFileAuthState('./storage/session');
+const sock = makeWASocket({
+  logger: pino({ level: "silent" }),
+  printQRInTerminal: !usePairingCode,
+  auth: state,
+  browser: Browsers.iOS('Safari'),
+  msgRetryCounterMap: {},
+  retryRequestDelayMs: 250,
+  markOnlineOnConnect: false,
+  emitOwnEvents: true,
+  syncFullHistory: true,
+  getMessage: async (key) => {
+    return { conversation: 'Pesan tidak tersedia.' };
+  },
+  patchMessageBeforeSending: (msg) => {
+    if (msg.contextInfo) delete msg.contextInfo.mentionedJid;
+    return msg;
+  }
+});
+if (usePairingCode && !sock.authState.creds.registered) {
+console.log(chalk.gray(`⣿⣿⣷⡁⢆⠈⠕⢕⢂⢕⢂⢕⢂⢔⢂⢕⢄⠂⣂⠂⠆⢂⢕⢂⢕⢂⢕⢂⢕⢂
 ⣿⣿⣿⡷⠊⡢⡹⣦⡑⢂⢕⢂⢕⢂⢕⢂⠕⠔⠌⠝⠛⠶⠶⢶⣦⣄⢂⢕⢂⢕
 ⣿⣿⠏⣠⣾⣦⡐⢌⢿⣷⣦⣅⡑⠕⠡⠐⢿⠿⣛⠟⠛⠛⠛⠛⠡⢷⡈⢂⢕⢂
 ⠟⣡⣾⣿⣿⣿⣿⣦⣑⠝⢿⣿⣿⣿⣿⣿⡵⢁⣤⣶⣶⣿⢿⢿⢿⡟⢻⣤⢑⢂
@@ -212,48 +237,69 @@ async function rinnStarted() {
 ⠌⢊⢂⢣⠹⣿⣿⣿⣿⣿⣿⣿⣿⣧⢐⢕⢕⢕⢕⢕⢅⣿⣿⣿⣿⡿⢋⢜⠠⠈
 ⠄⠁⠕⢝⡢⠈⠻⣿⣿⣿⣿⣿⣿⣿⣷⣕⣑⣑⣑⣵⣿⣿⣿⡿⢋⢔⢕⣿⠠⠈
 ⠨⡂⡀⢑⢕⡅⠂⠄⠉⠛⠻⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢋⢔⢕⢕⣿⣿⠠⠈
-⠄⠪⣂⠁⢕⠆⠄⠂⠄⠁⡀⠂⡀⠄⢈⠉⢍⢛⢛⢛⢋⢔⢕⢕⢕⣽⣿⣿⠠⠈`);
-        console.log(`Is connecting Number ${global.pairing}\n`);
-        await sleep(4000);
-        const code = await rinn.requestPairingCode(global.pairing);
-        console.log('Process...');
-        console.log(`Your Pairing Code: ${chalk.yellow.bold((code))}`);
-    }
-    const client = conn = rinn
-    store.bind(rinn.ev);
-    initSholat(rinn);
-    rinn.ev.on('messages.upsert', async msgUpdate => {
-        try {
-            const messages = msgUpdate.messages;
-            const msg = messages[0];
-            if (!msg.message) return;
-            msg.message = (Object.keys(msg.message)[0] === 'ephemeralMessage') ? msg.message.ephemeralMessage.message : msg.message;
-            if (msg.key && msg.key.remoteJid === 'status@broadcast') return;
-            if (msg.key.id.startsWith('BAE5') && msg.key.id.length === 16) return;
-            const messageId = msg.key.id;
-            if (processedMessages.has(messageId)) return;
-            processedMessages.add(messageId);
-            const m = smsg(rinn, msg, store);
-            require('./case.js').handleIncomingMessage(rinn, m, msg);
-        } catch (err) {
-            console.log(err);
-        }
-    })
-    const processedMessages = new Set();
-    // Setting
-    rinn.decodeJid = (jid) => {
-        if (!jid) return jid;
-        if (/:\d+@/gi.test(jid)) {
-            let decode = jidDecode(jid) || {};
-            return (decode.user && decode.server && decode.user + "@" + decode.server) || jid;
-        } else {
-            return jid;
-        }
-    };
+⠄⠪⣂⠁⢕⠆⠄⠂⠄⠁⡀⠂⡀⠄⢈⠉⢍⢛⢛⢛⢋⢔⢕⢕⢕⣽⣿⣿⠠⠈`));
+    console.log(chalk.blueBright('│') + chalk.whiteBright('  Masukkan Nomor WhatsApp ') + chalk.yellow('(awali dengan 62)'));
+    console.log(chalk.blueBright('└─> ') + chalk.cyanBright(''));
 
-    rinn.ev.on("contacts.update", (update) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    const phoneNumber = await new Promise((resolve) => {
+      rl.question('', (answer) => {
+        rl.close();
+        resolve(answer.trim());
+      });
+    });
+
+    const code = await sock.requestPairingCode(phoneNumber, 'SUKISUKI');
+    console.log(chalk.greenBright(`\nKode Pairing kamu: `) + chalk.yellowBright(code));
+    console.log(chalk.white(`Silakan buka WhatsApp > Perangkat Tertaut > Tautkan perangkat menggunakan kode.`));
+  }
+
+  store.bind(sock.ev);
+  await Solving(sock, store)
+
+  sock.ev.on("creds.update", saveCreds);
+  await initSholat(sock);
+
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
+    if (connection === 'close') {
+      const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
+      console.log('Koneksi terputus, mencoba menyambung ulang...', shouldReconnect);
+      if (shouldReconnect) connectToWhatsApp();
+    } else if (connection === 'open') {
+      console.log(chalk.greenBright('▣──────────────────────────────···\n│\n│❧ Suksess Terhubung Ke WhatsApp  ✅\n│\n▣──────────────────────────────···'));
+      console.log(chalk.yellow.bold("📁     Inisialisasi modul..."));
+        console.log(chalk.cyan.bold("- Whatsapp Bot Siap Di Gunakan"));
+    console.log(chalk.cyan.bold("- Database Telah Diinisialisasi"));
+    
+    console.log(chalk.blue.bold("\n🤖     Info Bot:"));
+    console.log(chalk.white.bold("- Status Server: ") + chalk.green.bold("Online"));
+    }
+  });
+
+  sock.ev.on('groups.update', async (update) => {
+                await GroupUpdate(sock, update, store);
+                const metadata = await sock.groupMetadata(update.id)
+                groupCache.set(update.id, metadata)
+  });
+
+  sock.ev.on('group-participants.update', async (groupUpdate) => {
+                await GroupParticipantsUpdate(sock, groupUpdate, store);
+                const metadata = await sock.groupMetadata(groupUpdate.id)
+                groupCache.set(groupUpdate.id, metadata)
+  });
+
+  sock.ev.on('messages.upsert', async (chatUpdate) => {
+                await MessagesUpsert(sock, chatUpdate, store);
+  });
+
+    sock.ev.on("contacts.update", (update) => {
         for (let contact of update) {
-            let id = rinn.decodeJid(contact.id);
+            let id = sock.decodeJid(contact.id);
             if (store && store.contacts) {
                 store.contacts[id] = {
                     id,
@@ -263,358 +309,38 @@ async function rinnStarted() {
         }
     });
 
-    rinn.getName = (jid, withoutContact = false) => {
-        id = rinn.decodeJid(jid);
-        withoutContact = rinn.withoutContact || withoutContact;
-        let v;
-
-        if (id.endsWith("@g.us")) {
-            return new Promise(async (resolve) => {
-                v = store.contacts[id] || {};
-                if (!(v.name || v.subject)) v = rinn.groupMetadata(id) || {};
-                resolve(v.name || v.subject || PhoneNumber("+" + id.replace("@s.whatsapp.net", "")).getNumber("international"));
-            });
-        } else {
-            v = id === "0@s.whatsapp.net" ?
-                {
-                    id,
-                    name: "WhatsApp"
-                } :
-                id === rinn.decodeJid(rinn.user.id) ?
-                rinn.user :
-                store.contacts[id] || {};
-        }
-
-        return (withoutContact ? "" : v.name) || v.subject || v.verifiedName || PhoneNumber("+" + jid.replace("@s.whatsapp.net", "")).getNumber("international");
-    };
-
-    rinn.public = true;
-
-    rinn.serializeM = (m) => smsg(rinn, m, store)
-
-    rinn.copyNForward = async (jid, message, forceForward = false, options = {}) => {
-        let vtype
-        if (options.readViewOnce) {
-            message.message = message.message && message.message.ephemeralMessage && message.message.ephemeralMessage.message ? message.message.ephemeralMessage.message : (message.message || undefined)
-            vtype = Object.keys(message.message.viewOnceMessage.message)[0]
-            delete(message.message && message.message.ignore ? message.message.ignore : (message.message || undefined))
-            delete message.message.viewOnceMessage.message[vtype].viewOnce
-            message.message = {
-                ...message.message.viewOnceMessage.message
-            }
-        }
-        let mtype = Object.keys(message.message)[0]
-        let content = await generateForwardMessageContent(message, forceForward)
-        let ctype = Object.keys(content)[0]
-        let context = {}
-        if (mtype != "conversation") context = message.message[mtype].contextInfo
-        content[ctype].contextInfo = {
-            ...context,
-            ...content[ctype].contextInfo
-        }
-        const waMessage = await generateWAMessageFromContent(jid, content, options ? {
-            ...content[ctype],
-            ...options,
-            ...(options.contextInfo ? {
-                contextInfo: {
-                    ...content[ctype].contextInfo,
-                    ...options.contextInfo
-                }
-            } : {})
-        } : {})
-        await rinn.relayMessage(jid, waMessage.message, {
-            messageId: waMessage.key.id
-        })
-        return waMessage
-    }
-
-    rinn.ev.on("connection.update", async (s) => {
-        const {
-            connection,
-            lastDisconnect
-        } = s
-        if (connection == "open") {
-            lolcatjs.fromString(`▧  Information connect :
-│ » User id: ${rinn.user.id}
-│ » Name: ${rinn.user.name}
-└───···`)
-        }
-        if (
-            connection === "close" &&
-            lastDisconnect &&
-            lastDisconnect.error &&
-            lastDisconnect.error.output.statusCode != 401
-        ) {
-            rinnStarted()
-        }
-    })
-
-    rinn.ev.on("creds.update", saveCreds);
-
-    rinn.getFile = async (PATH, returnAsFilename) => {
-        let res, filename;
-        const data = Buffer.isBuffer(PATH) ?
-            PATH :
-            /^data:.*?\/.*?;base64,/i.test(PATH) ?
-            Buffer.from(PATH.split`,` [1], 'base64') :
-            /^https?:\/\//.test(PATH) ?
-            await (res = await fetch(PATH)).buffer() :
-            fs.existsSync(PATH) ?
-            (filename = PATH, fs.readFileSync(PATH)) :
-            typeof PATH === 'string' ?
-            PATH :
-            Buffer.alloc(0);
-
-        if (!Buffer.isBuffer(data)) throw new TypeError('Result is not a buffer');
-
-        const type = await FileType.fromBuffer(data) || {
-            mime: 'application/octet-stream',
-            ext: '.bin'
-        };
-
-        if (data && returnAsFilename && !filename) {
-            filename = path.join(__dirname, './tmp/' + new Date * 1 + '.' + type.ext);
-            await fs.promises.writeFile(filename, data);
-        }
-
-        return {
-            res,
-            filename,
-            ...type,
-            data,
-            deleteFile() {
-                return filename && fs.promises.unlink(filename);
-            }
-        };
-    };
-
-    rinn.downloadMediaMessage = async (message) => {
-        let mime = (message.msg || message).mimetype || '';
-        let messageType = message.mtype ? message.mtype.replace(/Message/gi, '') : mime.split('/')[0];
-        const stream = await downloadContentFromMessage(message, messageType);
-        let buffer = Buffer.from([]);
-
-        for await (const chunk of stream) {
-            buffer = Buffer.concat([buffer, chunk]);
-        }
-        return buffer;
-    }
-
-    rinn.sendFile = async (jid, path, filename = '', caption = '', quoted, ptt = false, options = {}) => {
-        let type = await rinn.getFile(path, true);
-        let {
-            res,
-            data: file,
-            filename: pathFile
-        } = type;
-
-        if (res && res.status !== 200 || file.length <= 65536) {
-            try {
-                throw {
-                    json: JSON.parse(file.toString())
-                };
-            } catch (e) {
-                if (e.json) throw e.json;
-            }
-        }
-
-        let opt = {
-            filename
-        };
-        if (quoted) opt.quoted = quoted;
-        if (!type) options.asDocument = true;
-
-        let mtype = '',
-            mimetype = type.mime,
-            convert;
-
-        if (/webp/.test(type.mime) || (/image/.test(type.mime) && options.asSticker)) {
-            mtype = 'sticker';
-        } else if (/image/.test(type.mime) || (/webp/.test(type.mime) && options.asImage)) {
-            mtype = 'image';
-        } else if (/video/.test(type.mime)) {
-            mtype = 'video';
-        } else if (/audio/.test(type.mime)) {
-            convert = await (ptt ? toPTT : toAudio)(file, type.ext);
-            file = convert.data;
-            pathFile = convert.filename;
-            mtype = 'audio';
-            mimetype = 'audio/ogg; codecs=opus';
-        } else {
-            mtype = 'document';
-        }
-
-        if (options.asDocument) mtype = 'document';
-
-        let message = {
-            ...options,
-            caption,
-            ptt,
-            [mtype]: {
-                url: pathFile
-            },
-            mimetype
-        };
-
-        let m;
-        try {
-            m = await rinn.sendMessage(jid, message, {
-                ...opt,
-                ...options
-            });
-        } catch (e) {
-            console.error(e);
-            m = null;
-        } finally {
-            if (!m) m = await rinn.sendMessage(jid, {
-                ...message,
-                [mtype]: file
-            }, {
-                ...opt,
-                ...options
-            });
-            return m;
-        }
-    }
-
-    rinn.sendTextWithMentions = async (jid, text, quoted, options = {}) => {
-        rinn.sendMessage(jid, {
-            text: text,
-            contextInfo: {
-                mentionedJid: [...text.matchAll(/@(\d{0,16})/g)].map(v => v[1] + '@s.whatsapp.net')
-            },
-            ...options
-        }, {
-            quoted
-        });
-    };
-
-    rinn.sendVideoAsSticker = async (jid, path, quoted, options = {}) => {
-        let buff = Buffer.isBuffer(path) ?
-            path :
-            /^data:.*?\/.*?;base64,/i.test(path) ?
-            Buffer.from(path.split`,` [1], 'base64') :
-            /^https?:\/\//.test(path) ?
-            await (await getBuffer(path)) :
-            fs.existsSync(path) ?
-            fs.readFileSync(path) :
-            Buffer.alloc(0);
-
-        let buffer;
-        if (options && (options.packname || options.author)) {
-            buffer = await writeExifVid(buff, options);
-        } else {
-            buffer = await videoToWebp(buff);
-        }
-
-        await rinn.sendMessage(jid, {
-            sticker: {
-                url: buffer
-            },
-            ...options
-        }, {
-            quoted
-        });
-        return buffer;
-    };
-
-
-    rinn.downloadAndSaveMediaMessage = async (message, filename, attachExtension = true) => {
-        let quoted = message.msg ? message.msg : message;
-        let mime = (message.msg || message).mimetype || '';
-        let messageType = message.mtype ? message.mtype.replace(/Message/gi, '') : mime.split('/')[0];
-        const stream = await downloadContentFromMessage(quoted, messageType);
-        let buffer = Buffer.from([]);
-
-        for await (const chunk of stream) {
-            buffer = Buffer.concat([buffer, chunk]);
-        }
-
-        let type = await FileType.fromBuffer(buffer);
-        trueFileName = attachExtension ? (filename + '.' + type.ext) : filename;
-        await fs.writeFileSync(trueFileName, buffer);
-
-        return trueFileName;
-    };
-
-    const path = require('path');
-
-    rinn.downloadAndSaveMediaMessage = async (message, filename, attachExtension = true) => {
-        let quoted = message.msg ? message.msg : message;
-        let mime = (message.msg || message).mimetype || '';
-        let messageType = message.mtype ? message.mtype.replace(/Message/gi, '') : mime.split('/')[0];
-        const stream = await downloadContentFromMessage(quoted, messageType);
-        let buffer = Buffer.from([]);
-        for await (const chunk of stream) {
-            buffer = Buffer.concat([buffer, chunk]);
-        }
-        let type = await FileType.fromBuffer(buffer);
-        let trueFileName = attachExtension ? (filename + '.' + type.ext) : filename;
-        let savePath = path.join(__dirname, 'tmp', trueFileName); // Save to 'tmp' folder
-        await fs.writeFileSync(savePath, buffer);
-        return savePath;
-    };
-    rinn.sendImageAsSticker = async (jid, path, quoted, options = {}) => {
-        let buff = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split`,` [1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
-        let buffer
-        if (options && (options.packname || options.author)) {
-            buffer = await writeExifImg(buff, options)
-        } else {
-            buffer = await imageToWebp(buff)
-        }
-        await rinn.sendMessage(jid, {
-            sticker: {
-                url: buffer
-            },
-            ...options
-        }, {
-            quoted
-        })
-        return buffer
-    }
-
-    rinn.sendImage = async (e, t, a = "", s = "", f) => {
-        let r = Buffer.isBuffer(t) ?
-            t :
-            /^data:.*?\/.*?;base64,/i.test(t) ?
-            Buffer.from(t.split`,` [1], "base64") :
-            /^https?:\/\//.test(t) ?
-            await await getBuffer(t) :
-            fs.existsSync(t) ?
-            fs.readFileSync(t) :
-            Buffer.alloc(0);
-        return await rinn.sendMessage(
-            e, {
-                image: r,
-                caption: a,
-                ...f
-            }, {
-                quoted: s
-            }
-        );
-    };
-
-    rinn.sendText = (jid, text, quoted = '', options) => rinn.sendMessage(jid, {
-        text: text,
-        ...options
-    }, {
-        quoted
-    })
-
-    rinn.sendTextWithMentions = async (jid, text, quoted, options = {}) => rinn.sendMessage(jid, {
-        text: text,
-        contextInfo: {
-            mentionedJid: [...text.matchAll(/@(\d{0,16})/g)].map(v => v[1] + '@s.whatsapp.net')
-        },
-        ...options
-    }, {
-        quoted
-    })
-    return rinn;
+    sock.ev.on('call', async (call) => {
+		let botNumber = await sock.decodeJid(sock.user.id);
+		if (db.set[botNumber].anticall) {
+			for (let id of call) {
+				if (id.status === 'offer') {
+					let msg = await sock.sendMessage(id.from, { text: `Saat Ini, Kami Tidak Dapat Menerima Panggilan ${id.isVideo ? 'Video' : 'Suara'}.\nJika @${id.from.split('@')[0]} Memerlukan Bantuan, Silakan Hubungi Owner :)`, mentions: [id.from]});
+					await sock.sendContact(id.from, global.owner, msg);
+					await sock.rejectCall(id.id, id.from)
+				}
+			}
+		}
+	});
+      // Jalankan fungsi clearSessions setiap 3 jam
+    clearSessions('storage/session');
+    setInterval(() => {
+        console.log('Menjalankan pembersihan session...');
+        clearSessions('storage/session');
+    }, 1000 * 60 * 180);
 }
 
-rinnStarted();
+const main = async () => {
+  try {
+    await pilihMetodeKoneksi();
+    await connectToWhatsApp();
+  } catch (error) {
+    console.error('Error starting application:', error);
+  }
+};
 
+main();
+
+process.on('uncaughtException', console.error)
 //batas
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {

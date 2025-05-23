@@ -86,9 +86,7 @@ module.exports = {
         "https://catbox.moe/user/api.php",
         formData,
         {
-          headers: {
-            "User-Agent": fakeUserAgent(),
-          },
+          headers: formData.getHeaders(),
         },
       );
       return await response.data;
@@ -96,23 +94,20 @@ module.exports = {
       throw error;
     }
   },
-  mediaUploader: async (buffer) => {
+  nauval: async (content) => {
     try {
-      const { ext, mime } = (await fromBuffer(buffer)) || {};
-      const formData = await createFormData(buffer, "files[]", ext),
-        response = await axios.post(
-          "https://media-upload.net/php/ajax_upload_file.php",
-          formData,
-          {
-            headers: {
-              "User-Agent": fakeUserAgent(),
-            },
-          },
-        );
-      const files = response.data;
-      return files.files[0]?.fileUrl;
+      const { ext, mime } = (await fromBuffer(content)) || {};
+      const formData = createFormData(content, "file", ext);
+      const response = await axios.post(
+        "https://nauval.mycdn.biz.id/upload",
+        formData,
+        {
+          headers: formData.getHeaders(),
+        },
+      );
+      return response.data?.fileUrl;
     } catch (error) {
-      throw error;
+      throw false;
     }
   },
   videy: async (buffer) => {

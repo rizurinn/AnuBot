@@ -1,84 +1,1287 @@
 {
-  "users": {},
-  "chats": {
-    "6283865622763-1599366904@g.us": {
-      "badword": false
-    },
-    "6281391620354@s.whatsapp.net": {
-      "badword": false
-    },
-    "120363041703189743@g.us": {
-      "badword": false
-    },
-    "6283874475989@s.whatsapp.net": {
-      "badword": false
-    },
-    "6282325705644@s.whatsapp.net": {
-      "badword": false
-    },
-    "6289692637800@s.whatsapp.net": {
-      "badword": false
-    },
-    "6289528688090@s.whatsapp.net": {
-      "badword": false
-    },
-    "120363406246737165@g.us": {
-      "badword": false
-    },
-    "120363388538427874@g.us": {
-      "badword": false
-    },
-    "120363407386982014@g.us": {
-      "badword": false
-    },
-    "6283834312169@s.whatsapp.net": {
-      "badword": false
+  "set": {
+    "6287726985759@s.whatsapp.net": {
+      "lang": "id",
+      "limit": 1,
+      "uang": 0,
+      "status": 0,
+      "join": false,
+      "public": true,
+      "anticall": true,
+      "original": true,
+      "readsw": true,
+      "autobio": false,
+      "autoread": false,
+      "autotyping": true,
+      "multiprefix": false,
+      "template": "textMessage"
     },
     "6288228768785@s.whatsapp.net": {
-      "badword": false
+      "lang": "id",
+      "limit": 0,
+      "uang": 0,
+      "status": 0,
+      "join": false,
+      "public": true,
+      "anticall": true,
+      "original": true,
+      "readsw": false,
+      "autobio": false,
+      "autoread": true,
+      "autotyping": true,
+      "multiprefix": false,
+      "template": "textMessage"
+    }
+  },
+  "users": {
+    "6288228768785@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746876535530,
+      "lastbegal": 1746876535530,
+      "lastrampok": 1746876535530
     },
-    "120363224601904268@g.us": {
-      "badword": false
-    },
-    "120363153540687395@g.us": {
-      "badword": false
+    "undefined": {
+      "limit": 30,
+      "uang": 0,
+      "vip": false,
+      "registered": false,
+      "registeredAt": 0,
+      "lastSeen": 1747746072985
     },
     "6287726985759@s.whatsapp.net": {
-      "badword": false
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746876563467,
+      "lastbegal": 1746876563467,
+      "lastrampok": 1746876563467
     },
-    "120363409645463439@g.us": {
-      "badword": false
+    "6289523149678@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746878007370,
+      "lastbegal": 1746878007370,
+      "lastrampok": 1746878007370
     },
-    "120363390812384836@g.us": {
-      "badword": false
+    "6283845770690@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746878007433,
+      "lastbegal": 1746878007433,
+      "lastrampok": 1746878007433
     },
-    "120363200336026221@g.us": {
-      "badword": false
+    "120363310682748563@newsletter": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746878007435,
+      "lastbegal": 1746878007435,
+      "lastrampok": 1746878007435
+    },
+    "6285710933541@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746878019450,
+      "lastbegal": 1746878019450,
+      "lastrampok": 1746878019450
+    },
+    "6281391620354@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 24610,
+      "lastclaim": 1747462474305,
+      "lastbegal": 1746878025076,
+      "lastrampok": 1746878025076
+    },
+    "6283186864413@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746878061504,
+      "lastbegal": 1746878061504,
+      "lastrampok": 1746878061504
+    },
+    "6283897740733@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746878085771,
+      "lastbegal": 1746878085771,
+      "lastrampok": 1746878085771
+    },
+    "6282325705644@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 83479,
+      "lastclaim": 1746878880300,
+      "lastbegal": 1746878880300,
+      "lastrampok": 1746878880300
+    },
+    "6287732499453@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746933318524,
+      "lastbegal": 1746933318524,
+      "lastrampok": 1746933318524
+    },
+    "6282132064748@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746933375080,
+      "lastbegal": 1746933375080,
+      "lastrampok": 1746933375080
+    },
+    "6287788204604@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746937915582,
+      "lastbegal": 1746937915582,
+      "lastrampok": 1746937915582
+    },
+    "6282141204556@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746937935244,
+      "lastbegal": 1746937935244,
+      "lastrampok": 1746937935244
+    },
+    "6288216670281@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746938045908,
+      "lastbegal": 1746938045908,
+      "lastrampok": 1746938045908
+    },
+    "6289531207422@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746938180592,
+      "lastbegal": 1746938180592,
+      "lastrampok": 1746938180592
+    },
+    "6287787068384@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746939149625,
+      "lastbegal": 1746939149625,
+      "lastrampok": 1746939149625
+    },
+    "6285728735648@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746939688163,
+      "lastbegal": 1746939688163,
+      "lastrampok": 1746939688163
+    },
+    "6287862187956@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746940514614,
+      "lastbegal": 1746940514614,
+      "lastrampok": 1746940514614
+    },
+    "6282220632787@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746940536795,
+      "lastbegal": 1746940536795,
+      "lastrampok": 1746940536795
+    },
+    "6283150125268@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746941295943,
+      "lastbegal": 1746941295943,
+      "lastrampok": 1746941295943
+    },
+    "628998189165@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746941325129,
+      "lastbegal": 1746941325129,
+      "lastrampok": 1746941325129
+    },
+    "6281553036484@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746943106833,
+      "lastbegal": 1746943106833,
+      "lastrampok": 1746943106833
+    },
+    "6285641082937@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746944001537,
+      "lastbegal": 1746944001537,
+      "lastrampok": 1746944001537
+    },
+    "6283833278348@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746947124414,
+      "lastbegal": 1746947124414,
+      "lastrampok": 1746947124414
+    },
+    "6285165826760@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746948552648,
+      "lastbegal": 1746948552648,
+      "lastrampok": 1746948552648
+    },
+    "120363239630252198@newsletter": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746949665727,
+      "lastbegal": 1746949665727,
+      "lastrampok": 1746949665727
+    },
+    "62895404947890@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746969229491,
+      "lastbegal": 1746969229491,
+      "lastrampok": 1746969229491
+    },
+    "6285701174864@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746969913650,
+      "lastbegal": 1746969913650,
+      "lastrampok": 1746969913650
+    },
+    "6289510894794@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746972332728,
+      "lastbegal": 1746972332728,
+      "lastrampok": 1746972332728
+    },
+    "6283845499734@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746972877099,
+      "lastbegal": 1746972877099,
+      "lastrampok": 1746972877099
+    },
+    "6281210213551@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1746973043829,
+      "lastbegal": 1746973043829,
+      "lastrampok": 1746973043829
+    },
+    "6281246796608@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747024849727,
+      "lastbegal": 1747024849727,
+      "lastrampok": 1747024849727
+    },
+    "6285159613304@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747048426111,
+      "lastbegal": 1747048426111,
+      "lastrampok": 1747048426111
+    },
+    "6282264949267@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747049693245,
+      "lastbegal": 1747049693245,
+      "lastrampok": 1747049693245
+    },
+    "6281227212544@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747050057761,
+      "lastbegal": 1747050057761,
+      "lastrampok": 1747050057761
+    },
+    "62895607601000@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747050286316,
+      "lastbegal": 1747050286316,
+      "lastrampok": 1747050286316
+    },
+    "120363400176251771@newsletter": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747051001759,
+      "lastbegal": 1747051001759,
+      "lastrampok": 1747051001759
+    },
+    "6281226267981@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747053276800,
+      "lastbegal": 1747053276800,
+      "lastrampok": 1747053276800
+    },
+    "6283874475989@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747054663027,
+      "lastbegal": 1747054663027,
+      "lastrampok": 1747054663027
+    },
+    "6289618289628@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747055347241,
+      "lastbegal": 1747055347241,
+      "lastrampok": 1747055347241
+    },
+    "6288976530075@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747057504919,
+      "lastbegal": 1747057504919,
+      "lastrampok": 1747057504919
+    },
+    "6289619552949@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747058801116,
+      "lastbegal": 1747058801116,
+      "lastrampok": 1747058801116
+    },
+    "6289507230343@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747062254203,
+      "lastbegal": 1747062254203,
+      "lastrampok": 1747062254203
+    },
+    "6285876798892@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747063804398,
+      "lastbegal": 1747063804398,
+      "lastrampok": 1747063804398
+    },
+    "6287720070604@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747064001707,
+      "lastbegal": 1747064001707,
+      "lastrampok": 1747064001707
+    },
+    "6281331050745@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747064757979,
+      "lastbegal": 1747064757979,
+      "lastrampok": 1747064757979
+    },
+    "120363394142329945@newsletter": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747116323318,
+      "lastbegal": 1747116323318,
+      "lastrampok": 1747116323318
+    },
+    "6289652165954@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747138582220,
+      "lastbegal": 1747138582220,
+      "lastrampok": 1747138582220
+    },
+    "6288983265214@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747138582477,
+      "lastbegal": 1747138582477,
+      "lastrampok": 1747138582477
+    },
+    "6289649585303@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747140758085,
+      "lastbegal": 1747140758085,
+      "lastrampok": 1747140758085
+    },
+    "6285876034632@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747140785099,
+      "lastbegal": 1747140785099,
+      "lastrampok": 1747140785099
+    },
+    "6282137868715@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747141689045,
+      "lastbegal": 1747141689045,
+      "lastrampok": 1747141689045
+    },
+    "6285729955364@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747155792380,
+      "lastbegal": 1747155792380,
+      "lastrampok": 1747155792380
+    },
+    "6285773102235@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747157347459,
+      "lastbegal": 1747157347459,
+      "lastrampok": 1747157347459
+    },
+    "6288985293486@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747157657141,
+      "lastbegal": 1747157657141,
+      "lastrampok": 1747157657141
+    },
+    "6287762396825@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747158991339,
+      "lastbegal": 1747158991339,
+      "lastrampok": 1747158991339
+    },
+    "6285890327768@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747159389949,
+      "lastbegal": 1747159389949,
+      "lastrampok": 1747159389949
+    },
+    "6283186064089@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747177444979,
+      "lastbegal": 1747177444979,
+      "lastrampok": 1747177444979
+    },
+    "6285933822759@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747177509990,
+      "lastbegal": 1747177509990,
+      "lastrampok": 1747177509990
+    },
+    "6282269144025@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747183641910,
+      "lastbegal": 1747183641910,
+      "lastrampok": 1747183641910
+    },
+    "6285141716969@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747184402160,
+      "lastbegal": 1747184402160,
+      "lastrampok": 1747184402160
+    },
+    "6282322119085@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747218457812,
+      "lastbegal": 1747218457812,
+      "lastrampok": 1747218457812
+    },
+    "120363186130999681@newsletter": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747220155279,
+      "lastbegal": 1747220155279,
+      "lastrampok": 1747220155279
+    },
+    "6283873473778@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747223084883,
+      "lastbegal": 1747223084883,
+      "lastrampok": 1747223084883
+    },
+    "6281225014192@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747224684758,
+      "lastbegal": 1747224684758,
+      "lastrampok": 1747224684758
+    },
+    "6281477129321@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747224688311,
+      "lastbegal": 1747224688311,
+      "lastrampok": 1747224688311
+    },
+    "6285641765089@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747224911217,
+      "lastbegal": 1747224911217,
+      "lastrampok": 1747224911217
+    },
+    "6282133924806@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747225367902,
+      "lastbegal": 1747225367902,
+      "lastrampok": 1747225367902
+    },
+    "6289691574278@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747228257408,
+      "lastbegal": 1747228257408,
+      "lastrampok": 1747228257408
+    },
+    "6285643378311@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747228528612,
+      "lastbegal": 1747228528612,
+      "lastrampok": 1747228528612
+    },
+    "6283879297822@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747236494593,
+      "lastbegal": 1747236494593,
+      "lastrampok": 1747236494593
+    },
+    "6285782413239@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747236584829,
+      "lastbegal": 1747236584829,
+      "lastrampok": 1747236584829
+    },
+    "6289669408744@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747237108676,
+      "lastbegal": 1747237108676,
+      "lastrampok": 1747237108676
+    },
+    "6285852657834@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747237158267,
+      "lastbegal": 1747237158267,
+      "lastrampok": 1747237158267
+    },
+    "6288980534202@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747296181169,
+      "lastbegal": 1747296181169,
+      "lastrampok": 1747296181169
+    },
+    "6285701748344@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747296218067,
+      "lastbegal": 1747296218067,
+      "lastrampok": 1747296218067
+    },
+    "6281390923075@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747299847002,
+      "lastbegal": 1747299847002,
+      "lastrampok": 1747299847002
+    },
+    "6281337598321@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747303760968,
+      "lastbegal": 1747303760968,
+      "lastrampok": 1747303760968
+    },
+    "6285165520388@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747306731556,
+      "lastbegal": 1747306731556,
+      "lastrampok": 1747306731556
+    },
+    "6285283587402@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747309639489,
+      "lastbegal": 1747309639489,
+      "lastrampok": 1747309639489
+    },
+    "6281327963716@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747314247970,
+      "lastbegal": 1747314247970,
+      "lastrampok": 1747314247970
+    },
+    "6285174146506@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747321470993,
+      "lastbegal": 1747321470994,
+      "lastrampok": 1747321470994
+    },
+    "6285184985917@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747354257554,
+      "lastbegal": 1747354257554,
+      "lastrampok": 1747354257554
+    },
+    "6285939380800@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747355269796,
+      "lastbegal": 1747355269796,
+      "lastrampok": 1747355269796
+    },
+    "6285117258232@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747375550505,
+      "lastbegal": 1747375550505,
+      "lastrampok": 1747375550505
+    },
+    "6285607849706@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747376716175,
+      "lastbegal": 1747376716175,
+      "lastrampok": 1747376716175
+    },
+    "6289692637800@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747376945359,
+      "lastbegal": 1747376945359,
+      "lastrampok": 1747376945359
+    },
+    "6283176376767@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747379742729,
+      "lastbegal": 1747379742729,
+      "lastrampok": 1747379742729
+    },
+    "6283834885235@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747379952475,
+      "lastbegal": 1747379952475,
+      "lastrampok": 1747379952475
+    },
+    "6282311173556@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747379956860,
+      "lastbegal": 1747379956860,
+      "lastrampok": 1747379956860
+    },
+    "6281226515885@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747379965282,
+      "lastbegal": 1747379965282,
+      "lastrampok": 1747379965282
+    },
+    "6285807446196@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747382188375,
+      "lastbegal": 1747382188375,
+      "lastrampok": 1747382188375
+    },
+    "62895422923982@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747393077944,
+      "lastbegal": 1747393077944,
+      "lastrampok": 1747393077944
+    },
+    "6282146238002@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747396492766,
+      "lastbegal": 1747396492766,
+      "lastrampok": 1747396492766
+    },
+    "6285176965250@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747396661001,
+      "lastbegal": 1747396661001,
+      "lastrampok": 1747396661001
+    },
+    "6282142169110@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747397360474,
+      "lastbegal": 1747397360474,
+      "lastrampok": 1747397360474
+    },
+    "6285876041126@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747400059676,
+      "lastbegal": 1747400059676,
+      "lastrampok": 1747400059676
+    },
+    "6285358484288@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747400878160,
+      "lastbegal": 1747400878160,
+      "lastrampok": 1747400878160
+    },
+    "6283111927011@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747409959616,
+      "lastbegal": 1747409959616,
+      "lastrampok": 1747409959616
+    },
+    "6287837798381@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747419747136,
+      "lastbegal": 1747419747136,
+      "lastrampok": 1747419747136
+    },
+    "6285601256865@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747470067613,
+      "lastbegal": 1747470067613,
+      "lastrampok": 1747470067613
+    },
+    "6287718653103@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747470231655,
+      "lastbegal": 1747470231655,
+      "lastrampok": 1747470231655
+    },
+    "6285254076576@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747470314346,
+      "lastbegal": 1747470314346,
+      "lastrampok": 1747470314346
+    },
+    "6287837983160@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747470519159,
+      "lastbegal": 1747470519159,
+      "lastrampok": 1747470519159
+    },
+    "6282210319400@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747471993867,
+      "lastbegal": 1747471993867,
+      "lastrampok": 1747471993867
+    },
+    "6285747297138@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747480504063,
+      "lastbegal": 1747480504063,
+      "lastrampok": 1747480504063
+    },
+    "6287753514378@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747480967928,
+      "lastbegal": 1747480967928,
+      "lastrampok": 1747480967928
+    },
+    "120363399805123864@newsletter": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747481274914,
+      "lastbegal": 1747481274914,
+      "lastrampok": 1747481274914
+    },
+    "6283876713389@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747481291050,
+      "lastbegal": 1747481291050,
+      "lastrampok": 1747481291050
+    },
+    "6281321217454@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747481598328,
+      "lastbegal": 1747481598328,
+      "lastrampok": 1747481598328
+    },
+    "6282243065430@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747489263871,
+      "lastbegal": 1747489263871,
+      "lastrampok": 1747489263871
+    },
+    "6281802805887@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747495331179,
+      "lastbegal": 1747495331179,
+      "lastrampok": 1747495331179
     },
     "120363410273746262@newsletter": {
-      "badword": false
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747536496216,
+      "lastbegal": 1747536496216,
+      "lastrampok": 1747536496216
+    },
+    "6285727733684@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747542387035,
+      "lastbegal": 1747542387035,
+      "lastrampok": 1747542387035
+    },
+    "6282327688912@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747568643383,
+      "lastbegal": 1747568643383,
+      "lastrampok": 1747568643383
+    },
+    "6285702562083@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747568666761,
+      "lastbegal": 1747568666761,
+      "lastrampok": 1747568666761
+    },
+    "6285601867269@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747569092654,
+      "lastbegal": 1747569092654,
+      "lastrampok": 1747569092654
+    },
+    "120363317318116626@newsletter": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747589356468,
+      "lastbegal": 1747589356468,
+      "lastrampok": 1747589356468
+    },
+    "628812432708@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747626908964,
+      "lastbegal": 1747626908964,
+      "lastrampok": 1747626908964
+    },
+    "6288214830928@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747627342152,
+      "lastbegal": 1747627342152,
+      "lastrampok": 1747627342152
+    },
+    "6289644288872@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747627527992,
+      "lastbegal": 1747627527992,
+      "lastrampok": 1747627527992
+    },
+    "6285156562611@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747631407120,
+      "lastbegal": 1747631407120,
+      "lastrampok": 1747631407120
+    },
+    "6285879125940@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747635612876,
+      "lastbegal": 1747635612876,
+      "lastrampok": 1747635612876
+    },
+    "6282135455850@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747643806710,
+      "lastbegal": 1747643806710,
+      "lastrampok": 1747643806710
+    },
+    "6281398830267@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747654035527,
+      "lastbegal": 1747654035527,
+      "lastrampok": 1747654035527
+    },
+    "6285747260702@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747655122451,
+      "lastbegal": 1747655122451,
+      "lastrampok": 1747655122451
+    },
+    "6285166944093@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747658474056,
+      "lastbegal": 1747658474056,
+      "lastrampok": 1747658474056
+    },
+    "62895422922341@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747713771152,
+      "lastbegal": 1747713771152,
+      "lastrampok": 1747713771152
+    },
+    "6289528688090@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747716922048,
+      "lastbegal": 1747716922048,
+      "lastrampok": 1747716922048
+    },
+    "6285865123894@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747718351766,
+      "lastbegal": 1747718351766,
+      "lastrampok": 1747718351766
+    },
+    "6285601957709@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747732512839,
+      "lastbegal": 1747732512839,
+      "lastrampok": 1747732512839
+    },
+    "6282143151155@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747733461275,
+      "lastbegal": 1747733461275,
+      "lastrampok": 1747733461275
+    },
+    "6281320716582@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747734363000,
+      "lastbegal": 1747734363000,
+      "lastrampok": 1747734363000
+    },
+    "628994175650@s.whatsapp.net": {
+      "vip": false,
+      "limit": 30,
+      "uang": 10000,
+      "lastclaim": 1747742031569,
+      "lastbegal": 1747742031569,
+      "lastrampok": 1747742031569
+    }
+  },
+  "game": {
+    "suit": [],
+    "menfes": [],
+    "tekateki": [],
+    "akinator": [],
+    "tictactoe": [],
+    "tebaklirik": [],
+    "kuismath": [],
+    "tebaklagu": [],
+    "tebakkata": [],
+    "family100": [],
+    "susunkata": [],
+    "tebakbom": [],
+    "tebakkimia": [],
+    "caklontong": [],
+    "tebaknegara": [],
+    "tebakgambar": [],
+    "tebakbendera": []
+  },
+  "groups": {
+    "6283865622763-1599366904@g.us": {
+      "nsfw": true,
+      "mute": true,
+      "setinfo": true,
+      "antilink": true,
+      "antitoxic": true,
+      "welleave": true,
+      "promotedemote": true,
+      "antivirtex": false,
+      "antidelete": true,
+      "antitagsw": true
+    },
+    "120363418055631775@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false,
+      "antitagsw": false
+    },
+    "120363041703189743@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false,
+      "antitagsw": false
+    },
+    "120363401041268177@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false,
+      "antitagsw": false
+    },
+    "120363225603141466@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false
+    },
+    "120363400170298154@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false,
+      "antitagsw": false
+    },
+    "120363415920941090@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false,
+      "antitagsw": false
+    },
+    "120363401229735099@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false
+    },
+    "120363399500481780@g.us": {
+      "nsfw": false,
+      "mute": false,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": false,
+      "promotedemote": false,
+      "antivirtex": false,
+      "antidelete": false,
+      "antitagsw": false
+    },
+    "120363397488576773@g.us": {
+      "nsfw": false,
+      "mute": true,
+      "setinfo": true,
+      "antilink": false,
+      "antitoxic": false,
+      "welleave": true,
+      "promotedemote": true,
+      "antivirtex": false,
+      "antidelete": false,
+      "antitagsw": false
     }
   },
   "database": {},
-  "groups": {},
-  "game": {},
-  "settings": {
-    "6287726985759@s.whatsapp.net": {
-      "autobio": true,
-      "autoread": true,
-      "autorecordtype": false,
-      "autorecord": false,
-      "autotype": true,
-      "online": false
+  "chats": {
+    "6283865622763-1599366904@g.us": {
+      "antitagsw": true
     },
-    "6288228768785@s.whatsapp.net": {
-      "autobio": false,
-      "autoread": true,
-      "autorecordtype": false,
-      "autorecord": false,
-      "autotype": false
-    }
-  },
-  "others": {},
-  "sticker": {}
+    "120363418055631775@g.us": {},
+    "120363310682748563@newsletter": {},
+    "6281391620354@s.whatsapp.net": {},
+    "120363041703189743@g.us": {},
+    "6288228768785@s.whatsapp.net": {},
+    "120363401041268177@g.us": {},
+    "6287726985759@s.whatsapp.net": {},
+    "120363225603141466@g.us": {},
+    "120363239630252198@newsletter": {},
+    "120363400176251771@newsletter": {},
+    "120363400170298154@g.us": {},
+    "120363394142329945@newsletter": {},
+    "120363415920941090@g.us": {},
+    "6281391620354:41@s.whatsapp.net": {},
+    "120363186130999681@newsletter": {},
+    "120363401229735099@g.us": {}
+  }
 }

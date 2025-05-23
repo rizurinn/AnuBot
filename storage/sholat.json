@@ -1,12 +1,52 @@
 {
   "6283865622763-1599366904@g.us": {
     "jadwalSholat": {
+      "lokasi": "KOTA JAKARTA",
+      "cityId": "1301",
+      "aktif": true
+    },
+    "jadwalPuasa": {
+      "aktif": false
+    }
+  },
+  "120363410273746262@newsletter": {
+    "jadwalSholat": {
+      "lokasi": "KOTA SURAKARTA",
+      "cityId": "1434",
+      "aktif": false
+    },
+    "jadwalPuasa": {
+      "aktif": false
+    }
+  },
+  "120363401041268177@g.us": {
+    "jadwalSholat": {
+      "lokasi": "KAB. BOYOLALI",
+      "cityId": "1405",
+      "aktif": true
+    },
+    "jadwalPuasa": {
+      "aktif": false
+    }
+  },
+  "120363399500481780@g.us": {
+    "jadwalSholat": {
+      "lokasi": "KAB. BOYOLALI",
+      "cityId": "1405",
+      "aktif": true
+    },
+    "jadwalPuasa": {
+      "aktif": false
+    }
+  },
+  "120363397488576773@g.us": {
+    "jadwalSholat": {
       "lokasi": "KOTA SURAKARTA",
       "cityId": "1434",
       "aktif": true
     },
     "jadwalPuasa": {
-      "aktif": true
+      "aktif": false
     }
   }
 }

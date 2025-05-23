@@ -1,21 +1,31 @@
-const { proto, delay, getContentType } = require('@whiskeysockets/baileys')
-const chalk = require('chalk')
+const fs = require('fs');
+const util = require('util');
 const axios = require('axios');
+const chalk = require('chalk');
+const crypto = require('crypto');
+const FileType = require('file-type');
+const moment = require('moment-timezone');
+const { defaultMaxListeners } = require('stream');
 const { sizeFormatter } = require('human-readable');
-const fs = require("fs");
+const { exec, spawn, execSync } = require('child_process');
+const Jimp = require('jimp');
+const { proto, areJidsSameUser, extractMessageContent, downloadContentFromMessage, getContentType, getDevice } = require('@whiskeysockets/baileys');
+const pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split('');
 
-exports.color = (text, color) => {
-    return !color ? chalk.green(text) : chalk.keyword(color)(text)
+const unixTimestampSeconds = (date = new Date()) => Math.floor(date.getTime() / 1000)
 
+const generateMessageTag = (epoch) => {
+    let tag = (0, unixTimestampSeconds)().toString();
+    if (epoch)
+        tag += '.--' + epoch;
+    return tag;
 }
-exports.getGroupAdmins = (participants) => {
-        let admins = []
-        for (let i of participants) {
-            i.admin === "superadmin" ? admins.push(i.id) :  i.admin === "admin" ? admins.push(i.id) : ''
-        }
-        return admins || []
-     }
-exports.getBuffer = async (url, options) => {
+
+const processTime = (timestamp, now) => {
+	return moment.duration(now - moment(timestamp * 1000)).asSeconds()
+}
+
+const getBuffer = async (url, options) => {
 	try {
 		options ? options : {}
 		const res = await axios({
@@ -34,204 +44,405 @@ exports.getBuffer = async (url, options) => {
 	}
 }
 
-exports.bytesToSize = (bytes, decimals = 2) => {
-if (bytes === 0) return '0 Bytes';
-const k = 1024;
-const dm = decimals < 0 ? 0 : decimals;
-const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-const i = Math.floor(Math.log(bytes) / Math.log(k));
-return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-};
-
-exports.checkBandwidth = async () => {
-let ind = 0;
-let out = 0;
-for (let i of await require("node-os-utils").netstat.stats()) {
-ind += parseInt(i.inputBytes);
-out += parseInt(i.outputBytes);
-}
-return {
-download: exports.bytesToSize(ind),
-upload: exports.bytesToSize(out),
-};
-};
-
-exports.formatSize = (bytes) => {
-const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-if (bytes === 0) return '0 Bytes';
-const i = Math.floor(Math.log(bytes) / Math.log(1024));
-return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
-};
-
-exports.getBuffer = async (url, options) => {
-try {
-options = options || {};
-const res = await axios({
-method: "get",
-url,
-headers: {
-'DNT': 1,
-'Upgrade-Insecure-Request': 1
-},
-...options,
-responseType: 'arraybuffer'
-});
-return res.data;
-} catch (err) {
-return err;
-}
-};
-
-exports.isUrl = (url) => {
-return url.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/, 'gi'));
-};
-
-exports.jsonformat = (string) => {
-return JSON.stringify(string, null, 2);
-};
-
-exports.nganuin = async (url, options) => {
-try {
-options = options || {};
-const res = await axios({
-method: 'GET',
-url: url,
-headers: {
-'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36'
-},
-...options
-});
-return res.data;
-} catch (err) {
-return err;
-}
-};
-
-exports.pickRandom = (ext) => {
-return `${Math.floor(Math.random() * 10000)}${ext}`;
-};
-
-exports.runtime = function (seconds) {
-seconds = Number(seconds);
-var d = Math.floor(seconds / (3600 * 24));
-var h = Math.floor(seconds % (3600 * 24) / 3600);
-var m = Math.floor(seconds % 3600 / 60);
-var s = Math.floor(seconds % 60);
-var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
-var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
-var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-return dDisplay + hDisplay + mDisplay + sDisplay;
-};
-
-exports.shorturl = async function shorturl(longUrl) {
-try {
-const data = { url: longUrl };
-const response = await axios.post('https://shrtrl.vercel.app/', data);
-return response.data.data.shortUrl;
-} catch (error) {
-return error;
-}
-};
-
-exports.formatp = sizeFormatter({
-std: 'JEDEC', //'SI' = default | 'IEC' | 'JEDEC'
-decimalPlaces: 2,
-keepTrailingZeroes: false,
-render: (literal, symbol) => `${literal} ${symbol}B`
-});
-
-exports.smsg = (ptz, m, store) => {
+const fetchJson = async (url, options) => {
     try {
-if (!m) return m;
-let M = proto.WebMessageInfo;
-if (m.key) {
-m.id = m.key.id;
-m.isBaileys = m.id.startsWith('BAE5') && m.id.length === 16;
-m.chat = m.key.remoteJid;
-m.fromMe = m.key.fromMe;
-m.isGroup = m.chat.endsWith('@g.us');
-m.sender = ptz.decodeJid(m.fromMe && ptz.user.id || m.participant || m.key.participant || m.chat || '');
-if (m.isGroup) m.participant = ptz.decodeJid(m.key.participant) || '';
+        options ? options : {}
+        const res = await axios({
+            method: 'GET',
+            url: url,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36'
+            },
+            ...options
+        })
+        return res.data
+    } catch (err) {
+        return err
+    }
 }
-if (m.message) {
-m.mtype = getContentType(m.message);
-m.msg = (m.mtype == 'viewOnceMessage' ? m.message[m.mtype].message[getContentType(m.message[m.mtype].message)] : m.message[m.mtype]);
-m.body = m.message.conversation || m.msg.caption || m.msg.text || (m.mtype == 'listResponseMessage') && m.msg.singleSelectReply.selectedRowId || (m.mtype == 'buttonsResponseMessage') && m.msg.selectedButtonId || (m.mtype == 'viewOnceMessage') && m.msg.caption || m.text;
-let quoted = m.quoted = m.msg.contextInfo ? m.msg.contextInfo.quotedMessage : null;
-m.mentionedJid = m.msg.contextInfo ? m.msg.contextInfo.mentionedJid : [];
-if (m.msg.caption) {
-m.caption = m.msg.caption;
+
+const runtime = function(seconds) {
+	seconds = Number(seconds);
+	var d = Math.floor(seconds / (3600 * 24));
+	var h = Math.floor(seconds % (3600 * 24) / 3600);
+	var m = Math.floor(seconds % 3600 / 60);
+	var s = Math.floor(seconds % 60);
+	var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
+	var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+	var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
+	var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+	return dDisplay + hDisplay + mDisplay + sDisplay;
 }
-if (m.quoted) {
-let type = Object.keys(m.quoted)[0];
-m.quoted = m.quoted[type];
-if (['productMessage'].includes(type)) {
-type = Object.keys(m.quoted)[0];
-m.quoted = m.quoted[type];
+
+const clockString = (ms) => {
+    let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000)
+    let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
+    let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
+    return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')
 }
-if (typeof m.quoted === 'string') m.quoted = {
-text: m.quoted
-};
-m.quoted.mtype = type;
-m.quoted.id = m.msg.contextInfo.stanzaId;
-m.quoted.chat = m.msg.contextInfo.remoteJid || m.chat;
-m.quoted.isBaileys = m.quoted.id ? m.quoted.id.startsWith('BAE5') && m.quoted.id.length === 16 : false;
-m.quoted.sender = ptz.decodeJid(m.msg.contextInfo.participant);
-m.quoted.fromMe = m.quoted.sender === ptz.decodeJid(ptz.user.id);
-m.quoted.text = m.quoted.text || m.quoted.caption || m.quoted.conversation || m.quoted.contentText || m.quoted.selectedDisplayText || m.quoted.title || '';
-m.quoted.mentionedJid = m.msg.contextInfo ? m.msg.contextInfo.mentionedJid : [];
-m.getQuotedObj = m.getQuotedMessage = async () => {
-if (!m.quoted.id) return false;
-let q = await store.loadMessage(m.chat, m.quoted.id, ptz);
-return smsg(ptz, q, store);
-};
-let vM = m.quoted.fakeObj = M.fromObject({
-key: {
-remoteJid: m.quoted.chat,
-fromMe: m.quoted.fromMe,
-id: m.quoted.id
-},
-message: quoted,
-...(m.isGroup ? { participant: m.quoted.sender } : {})
-});
-m.quoted.delete = () => ptz.sendMessage(m.quoted.chat, { delete: vM.key });
-m.quoted.copyNForward = (jid, forceForward = false, options = {}) => ptz.copyNForward(jid, vM, forceForward, options);
-m.quoted.download = () => ptz.downloadMediaMessage(m.quoted);
+
+const sleep = async (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+const isUrl = (url) => {
+    return url.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/, 'gi'))
 }
-if (m.msg.url) m.download = () => ptz.downloadMediaMessage(m.msg);
-m.text = m.msg.text || m.msg.caption || m.message.conversation || m.msg.contentText || m.msg.selectedDisplayText || m.msg.title || '';
-m.reply = (text, chatId = m.chat, options = {}) => Buffer.isBuffer(text) ? ptz.sendMedia(chatId, text, 'file', '', m, { ...options }) : ptz.sendText(chatId, text, m, { ...options });
-m.copy = () => smsg(ptz, M.fromObject(M.toObject(m)));
-m.copyNForward = (jid = m.chat, forceForward = false, options = {}) => ptz.copyNForward(jid, m, forceForward, options);
-ptz.appenTextMessage = async(text, chatUpdate) => {
-let messages = await generateWAMessage(m.chat, { text: text, mentions: m.mentionedJid }, {
-userJid: ptz.user.id,
-quoted: m.quoted && m.quoted.fakeObj
-});
-messages.key.fromMe = areJidsSameUser(m.sender, ptz.user.id);
-messages.key.id = m.key.id;
-messages.pushName = m.pushName;
-if (m.isGroup) messages.participant = m.sender;
-let msg = {
-...chatUpdate,
-messages: [proto.WebMessageInfo.fromObject(messages)],
-type: 'append'
-};
-ptz.ev.emit('messages.upsert', msg);
+
+function ensureHttps(urlString) {
+  try {
+    const url = new URL(urlString);
+    if (url.protocol === 'http:') {
+      url.protocol = 'https:';
+    }
+    return url.toString();
+  } catch (e) {
+    // URL tidak valid, kembalikan string asli
+    return urlString;
+  }
+}
+
+const getTime = (format, date) => {
+	if (date) {
+		return moment(date).locale('id').format(format)
+	} else {
+		return moment.tz('Asia/Jakarta').locale('id').format(format)
+	}
+}
+
+const formatDate = (n, locale = 'id') => {
+	let d = new Date(n)
+	return d.toLocaleDateString(locale, {
+		weekday: 'long',
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+		hour: 'numeric',
+		minute: 'numeric',
+		second: 'numeric'
+	})
+}
+
+const tanggal = (numer) => {
+	myMonths = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+	myDays = ['Minggu','Senin','Selasa','Rabu','Kamis','Jum’at','Sabtu']; 
+	var tgl = new Date(numer);
+	var day = tgl.getDate()
+	bulan = tgl.getMonth()
+	var thisDay = tgl.getDay(),
+	thisDay = myDays[thisDay];
+	var yy = tgl.getYear()
+	var year = (yy < 1000) ? yy + 1900 : yy; 
+	const time = moment.tz('Asia/Jakarta').format('DD/MM HH:mm:ss')
+	let d = new Date
+	let locale = 'id'
+	let gmt = new Date(0).getTime() - new Date('1 January 1970').getTime()
+	let weton = ['Pahing', 'Pon','Wage','Kliwon','Legi'][Math.floor(((d * 1) + gmt) / 84600000) % 5]
+	return`${thisDay}, ${day} - ${myMonths[bulan]} - ${year}`
+}
+
+const formatp = sizeFormatter({
+    std: 'JEDEC', //'SI' = default | 'IEC' | 'JEDEC'
+    decimalPlaces: 2,
+    keepTrailingZeroes: false,
+    render: (literal, symbol) => `${literal} ${symbol}B`,
+})
+
+const jsonformat = (string) => {
+    return JSON.stringify(string, null, 2)
+}
+
+const reSize = async (image, ukur1 = 100, ukur2 = 100) => {
+	return new Promise(async(resolve, reject) => {
+		try {
+			const read = await Jimp.read(image);
+			const result = await read.resize(ukur1, ukur2).getBufferAsync(Jimp.MIME_JPEG)
+			resolve(result)
+		} catch (e) {
+			reject(e)
+		}
+	})
+}
+
+const toHD = async (image) => {
+	return new Promise(async(resolve, reject) => {
+		try {
+			const read = await Jimp.read(image);
+			const newWidth = read.bitmap.width * 4;
+			const newHeight = read.bitmap.height * 4;
+			const result = await read.resize(newWidth, newHeight).getBufferAsync(Jimp.MIME_JPEG)
+			resolve(result)
+		} catch (e) {
+			reject(e)
+		}
+	})
+}
+
+const logic = (check, inp, out) => {
+	if (inp.length !== out.length) throw new Error('Input and Output must have same length')
+	for (let i in inp)
+		if (util.isDeepStrictEqual(check, inp[i])) return out[i]
+	return null
+}
+
+const generateProfilePicture = async (buffer) => {
+	const jimp = await Jimp.read(buffer)
+	const min = jimp.getWidth()
+	const max = jimp.getHeight()
+	const cropped = jimp.crop(0, 0, min, max)
+	return {
+		img: await cropped.scaleToFit(720, 720).getBufferAsync(Jimp.MIME_JPEG),
+		preview: await cropped.scaleToFit(720, 720).getBufferAsync(Jimp.MIME_JPEG)
+	}
+}
+
+const bytesToSize = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+const checkBandwidth = async () => {
+	let ind = 0;
+	let out = 0;
+	for (let i of await require('node-os-utils').netstat.stats()) {
+		ind += parseInt(i.inputBytes);
+		out += parseInt(i.outputBytes);
+	}
+	return {
+		download: bytesToSize(ind),
+		upload: bytesToSize(out),
+	}
+}
+
+const getSizeMedia = async (path) => {
+    return new Promise((resolve, reject) => {
+        if (typeof path === 'string' && /http/.test(path)) {
+            axios.get(path).then((res) => {
+                let length = parseInt(res.headers['content-length'])
+                if(!isNaN(length)) resolve(bytesToSize(length, 3))
+            })
+        } else if (Buffer.isBuffer(path)) {
+            let length = Buffer.byteLength(path)
+            if(!isNaN(length)) resolve(bytesToSize(length, 3))
+        } else {
+            reject(0)
+        }
+    })
+}
+
+async function formatSize(bytes) {
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  if (bytes === 0) return '0 B'
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i]
+}
+
+const parseMention = (text = '') => {
+    return [...text.matchAll(/@([0-9]{5,16}|0)/g)].map(v => v[1] + '@s.whatsapp.net')
+}
+
+const getGroupAdmins = (participants) => {
+        let admins = []
+        for (let i of participants) {
+            i.admin === "superadmin" ? admins.push(i.id) :  i.admin === "admin" ? admins.push(i.id) : ''
+        }
+        return admins || []
+}
+
+const getHashedPassword = (password) => {
+    const sha256 = crypto.createHash('sha256');
+    const hash = sha256.update(password).digest('base64');
+    return hash;
+}
+
+const generateAuthToken = (size) => {
+    return crypto.randomBytes(size).toString('hex').slice(0, size);
+}
+
+const cekMenfes = (tag, nomer, db_menfes) => {
+	let x1 = false
+	Object.keys(db_menfes).forEach((i) => {
+		if (db_menfes[i].id == nomer){
+			x1 = i
+		}
+	})
+	if (x1 !== false) {
+		if (tag == 'id'){
+			return db_menfes[x1].id
+		}
+		if (tag == 'teman'){
+			return db_menfes[x1].teman
+		}
+	}
+	if (x1 == false) {
+		return null
+	}
+}
+
+function format(...args) {
+	return util.format(...args)
+}
+
+function generateToken() {
+  let characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*';
+  let token = '';
+  for (let i = 0; i < 8; i++) {
+    let randomIndex = Math.floor(Math.random() * characters.length);
+    token += characters.charAt(randomIndex);
+  }
+  return token;
+}
+
+function batasiTeks(teks, batas) {
+  if (teks.length <= batas) {
+    return teks;
+  } else {
+    return teks.substring(0, batas) + '...';
+  }
+}
+
+function randomText(len) {
+    const result = [];
+    for (let i = 0; i < len; i++) result.push(pool[Math.floor(Math.random() * pool.length)]);
+    return result.join('');
+}
+
+function isEmoji(str) {
+  const emojiRegex = /[\u{1F000}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F100}-\u{1F1FF}]/u;
+  return emojiRegex.test(str);
+}
+
+function readFileTxt(file) {
+    return new Promise((resolve, reject) => {
+        const data = fs.readFileSync(file, 'utf8');
+        const array = data.toString().split('\n') ;
+        const random = array[Math.floor(Math.random() * array.length)];
+        resolve(random.replace('\r', ''));
+    })
+}
+
+function readFileJson(file) {
+    return new Promise((resolve, reject) => {
+        const jsonData = JSON.parse(fs.readFileSync(file));
+        const index = Math.floor(Math.random() * jsonData.length);
+        const random = jsonData[index];
+        resolve(random);
+    })
+}
+
+async function getTypeUrlMedia(url) {
+	return new Promise(async (resolve, reject) => {
+		try {
+			const buffer = await axios.get(url, { responseType: 'arraybuffer' });
+			const type = buffer.headers['content-type'] || (await FileType.fromBuffer(buffer.data)).mime
+			resolve({ type, url })
+		} catch (e) {
+			reject(e)
+		}
+	})
+}
+
+function pickRandom(list) {
+	return list[Math.floor(list.length * Math.random())]
+}
+
+function convertTimestampToDate(timestamp) {
+	return timestamp ? new Date(timestamp * 1000).toISOString().replace("T", " ").split(".")[0] : 'N/A'
+}
+
+function isCommandAvailable(command) {
+    try {
+        execSync(`command -v ${command}`);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+async function getAllHTML(urls) {
+  try {
+    const htmlArr = [];
+    for (const url of urls) {
+      const response = await axios.get(url);
+      htmlArr.push(response.data);
+    }
+    return htmlArr;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function jsonMathBeautifull(jsonResponse) {
+  try {
+    // Memastikan jsonResponse adalah objek
+    if (typeof jsonResponse === 'string') {
+      jsonResponse = JSON.parse(jsonResponse);
+    }
+    
+    // Mendapatkan result text
+    const resultText = jsonResponse.result || '';
+    
+    // Format header (jika diperlukan)
+    let formattedText = '';
+    
+    // Memproses konten matematika dengan menyesuaikan format LaTeX
+    let processedResult = resultText
+      // Konversi formatting LaTeX
+      .replace(/\\\\/g, '\\') // Mengganti \\ dengan \
+      .replace(/\$\$(.*?)\$\$/g, '_$1_') // Blok LaTeX menjadi italics
+      .replace(/\$(.*?)\$/g, '_$1_') // Inline LaTeX menjadi italics
+      
+      // Memperbaiki formatting heading dan emphasis
+      .replace(/### (.*?):/g, '*$1:*') // Heading menjadi bold
+      .replace(/\*\*(.*?)\*\*/g, '*$1*') // Bold tetap bold
+      
+      // Memperbaiki bullet points
+      .replace(/- /g, '• ') // Mengubah bullet points
+      .replace(/  - /g, '  ‣ ') // Mengubah sub-bullet points
+      
+      // Memperbaiki garis pembatas
+      .replace(/---/g, '━━━━━━━━━━━━━━━━━━') // Mengubah garis pembatas
+      
+      // Memperbaiki simbol matematika
+      .replace(/\\frac{(.*?)}{(.*?)}/g, '($1)/($2)') // Mengubah pecahan
+      .replace(/\\binom{(.*?)}{(.*?)}/g, 'C($1,$2)') // Mengubah binomial
+      .replace(/\\implies/g, '→') // Mengubah simbol implies
+      .replace(/\\cdot/g, '·') // Mengubah simbol cdot
+      .replace(/\\neq/g, '≠') // Mengubah simbol not equal
+      
+      // Memperbaiki spasi dan line break
+      .replace(/\n{3,}/g, '\n\n'); // Mengurangi multiple line breaks
+    
+    // Menambahkan hasil yang sudah diproses
+    formattedText += processedResult;
+    
+    return formattedText;
+  } catch (error) {
+    return `Error saat memformat pesan: ${error.message}`;
+  }
+}
+
+async function getImageBase64(url) {
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    return Buffer.from(response.data).toString('base64');
+  } catch (error) {
+    console.error('Error getting image as base64:', error);
+    // Return default empty string atau null jika gagal
+    return null;
+  }
 };
 
-return m;
-        } catch (e) {
-            
-        }
-};
+module.exports = { unixTimestampSeconds, generateMessageTag, processTime, getBuffer, fetchJson, runtime, clockString, sleep, isUrl, ensureHttps, getTime, formatDate, tanggal, formatp, jsonformat, reSize, toHD, logic, generateProfilePicture, bytesToSize, checkBandwidth, getSizeMedia, formatSize, parseMention, getGroupAdmins, readFileTxt, readFileJson, isCommandAvailable, getHashedPassword, generateAuthToken, cekMenfes, generateToken, batasiTeks, randomText, isEmoji, getTypeUrlMedia, pickRandom, convertTimestampToDate, getAllHTML, jsonMathBeautifull, getImageBase64 };
 
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {
-fs.unwatchFile(file)
-console.log(chalk.redBright(`Update ${__filename}`))
-delete require.cache[file]
-require(file)
+	fs.unwatchFile(file)
+	console.log(chalk.redBright(`Update ${__filename}`))
+	delete require.cache[file]
+	require(file)
 })
